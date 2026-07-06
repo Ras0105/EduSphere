@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | EduSphere Portal</title>
+    
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/login.css') }}">   
+    
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- Logo and Heading Branding Banner -->
+        <div class="brand-header">
+            <div class="brand-logo">
+                <i class="fa-solid fa-graduation-cap"></i> EduSphere<span>.</span>
+            </div>
+            <p>University Management Dashboard Ecosystem</p>
+        </div>
+
+        <!-- Secure Form Execution Pipeline -->
+        <form action="/login" method="POST">
+            
+            <!-- Email Address Group -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input 
+                        type="email" 
+                        id="email"
+                        name="email" 
+                        placeholder="name@university.edu" 
+                        required>
+                </div>
+            </div>
+
+            <!-- Password Guard Group -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input 
+                        type="password" 
+                        id="password"
+                        name="password" 
+                        placeholder="••••••••" 
+                        required>
+                    <i class="fa-solid fa-eye toggle-password" id="passwordToggle"></i>
+                </div>
+            </div>
+
+            <!-- Operational Submit Dispatcher -->
+            <button type="submit" class="submit-btn">
+                Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </form>
+
+        <hr class="divider">
+
+        <!-- Navigation Routing Options -->
+        <div class="footer-links">
+
+             <div class="forgot-password">
+
+    <a href="/forgot-password">
+
+        <i class="fa-solid fa-key"></i>
+
+        Forgot Password?
+
+    </a>
+
+</div>
+
+            <p>Don't have an account? <a href="/register">Create Account</a></p>
+            <a href="/" class="back-home">
+                <i class="fa-solid fa-arrow-left-long"></i> Return to Homepage
+            </a>
+        </div>
+    </div>
+
+    <!-- ================= DYNAMIC VISIBILITY SCRIPT ================= */ -->
+    <script>
+        const passwordField = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+
+        passwordToggle.addEventListener('click', function() {
+            // Check current attribute state to swap text processing views
+            const isPassword = passwordField.getAttribute('type') === 'password';
+            passwordField.setAttribute('type', isPassword ? 'text' : 'password');
+            
+            // Toggle representation eye glyph structure classes safely
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>

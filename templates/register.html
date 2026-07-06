@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | EduSphere</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/register.css') }}">    
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> EduSphere<span>.</span>
+            </div>
+            <div class="menu-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/"><i class="fa-solid fa-house"></i> Home</a></li>
+                    <li><a href="/#about"><i class="fa-solid fa-circle-info"></i> About</a></li>
+                    <li><a href="/#contact"><i class="fa-solid fa-phone"></i> Contact</a></li>
+                    <li><a href="/login" class="login-btn">Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="animated-bg">
+            <div class="circle c1"></div>
+            <div class="circle c2"></div>
+        </div>
+
+        <div class="hero-container">
+            
+            <div class="hero-text">
+                <span class="tag"><i class="fa-solid fa-sparkles"></i> Admissions 2026</span>
+                <h1>Begin Your Academic Journey <br>With <span>EduSphere</span></h1>
+                <p>Access your personalized student portal, manage course structures, track your grades, and connect directly with world-class faculty network.</p>
+                
+                <ul class="features-list">
+                    <li><i class="fa-solid fa-circle-check"></i> Integrated LMS & Grading Platform</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Seamless Online Fee Management</li>
+                    <li><i class="fa-solid fa-circle-check"></i> 24/7 Digital Library & Resources</li>
+                </ul>
+            </div>
+
+            <div class="register-card">
+                <div class="card-header">
+                    <h2>Create Account</h2>
+                    <p>Join the university management platform</p>
+                </div>
+
+            <form    action="/register"  method="POST" enctype="multipart/form-data"  autocomplete="off">
+
+                <!-- ================= Profile Image ================= -->
+
+                <div class="profile-section">
+
+                    <div class="image-wrapper">
+
+                        <img
+                            id="previewImage"
+                            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                            alt="Avatar">
+
+                        <label
+                            for="profileImage"
+                            class="upload-overlay">
+
+                            <i class="fa-solid fa-camera"></i>
+
+                        </label>
+
+                    </div>
+
+                    <input
+                        type="file"
+                        id="profileImage"
+                        name="profile_image"
+                        accept="image/*"
+                        style="display:none;">
+
+                    <span class="upload-label-text">
+
+                        Upload Profile Photo
+
+                    </span>
+
+                </div>
+
+                <!-- ================= Role ================= -->
+
+                <div class="role-box">
+
+                    <label>
+
+                        Register As
+
+                    </label>
+
+                    <div class="role-options">
+
+                        <label class="role-card">
+
+                            <input
+                                type="radio"
+                                name="role"
+                                value="student"
+                                checked>
+
+                            <span class="custom-radio"></span>
+
+                            <i class="fa-solid fa-user-graduate"></i>
+
+                            Student
+
+                        </label>
+
+                        <label class="role-card">
+
+                            <input
+                                type="radio"
+                                name="role"
+                                value="admin">
+
+                            <span class="custom-radio"></span>
+
+                            <i class="fa-solid fa-user-shield"></i>
+
+                            Admin
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- ================= Full Name ================= -->
+
+                <div class="input-group">
+
+                    <i class="fa-solid fa-user input-icon"></i>
+
+                    <input
+                        type="text"
+                        id="full_name"
+                        name="full_name"
+                        autocomplete="name"
+                        placeholder=" "
+                        required>
+
+                    <label>
+
+                        Full Name
+
+                    </label>
+
+                </div>
+
+                <!-- ================= Email ================= -->
+
+                <div class="input-group">
+
+                    <i class="fa-solid fa-envelope input-icon"></i>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder=" "
+                        required>
+
+                    <label>
+
+                        Email Address
+
+                    </label>
+
+                </div>
+
+                <!-- ================= Mobile ================= -->
+
+                <div class="input-group">
+
+                    <i class="fa-solid fa-phone input-icon"></i>
+
+                    <input
+                        type="text"
+                        id="mobile"
+                        name="mobile"
+                        maxlength="10"
+                        autocomplete="tel"
+                        placeholder=" "
+                        required>
+
+                    <label>
+
+                        Mobile Number
+
+                    </label>
+
+                </div>
+
+                <!-- ================= Password ================= -->
+
+                <div class="input-group password-box">
+
+                    <i class="fa-solid fa-lock input-icon"></i>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="new-password"
+                        placeholder=" "
+                        required>
+
+                    <label>
+
+                        Password
+
+                    </label>
+
+                    <span id="togglePassword">
+
+                        <i class="fa-solid fa-eye"></i>
+
+                    </span>
+
+                </div>
+
+                <!-- ================= Password Strength ================= -->
+
+                <div class="strength-wrapper">
+
+                    <div class="strength-container">
+
+                        <div
+                            id="strengthBar"
+                            class="strength-bar">
+
+                        </div>
+
+                    </div>
+
+                    <span id="strengthText">
+
+                        Password Strength
+
+                    </span>
+
+                </div>
+
+                <!-- ================= Confirm Password ================= -->
+
+                <div class="input-group password-box">
+
+                    <i class="fa-solid fa-shield-check input-icon"></i>
+
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        autocomplete="new-password"
+                        placeholder=" "
+                        required>
+
+                    <label>
+
+                        Confirm Password
+
+                    </label>
+
+                    <span id="toggleConfirmPassword">
+
+                        <i class="fa-solid fa-eye"></i>
+
+                    </span>
+
+                </div>
+
+                <!-- ================= Department ================= -->
+
+                <div class="select-group">
+
+                    <label for="department">
+
+                        Department / Branch
+
+                    </label>
+
+                    <div class="select-wrapper">
+
+                        <select
+                            id="department"
+                            name="department"
+                            required>
+
+                            <option
+                                value=""
+                                disabled
+                                selected
+                                hidden>
+
+                                Choose your department...
+
+                            </option>
+
+                            <option value="cse">
+
+                                Computer Science & Engineering
+
+                            </option>
+
+                            <option value="ece">
+
+                                Electronics & Communication
+
+                            </option>
+
+                            <option value="me">
+
+                                Mechanical Engineering
+
+                            </option>
+
+                            <option value="it">
+
+                                Information Technology
+
+                            </option>
+
+                        </select>
+
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+
+                    </div>
+
+                </div>
+
+                <!-- ================= Terms ================= -->
+
+                <label class="terms-container">
+
+                    <input
+                        type="checkbox"
+                        name="terms"
+                        required>
+
+                    <span class="checkmark"></span>
+
+                    I agree to the
+
+                    <a href="#">
+
+                        Terms & Conditions
+
+                    </a>
+
+                </label>
+
+                <!-- ================= Success ================= -->
+
+                <div
+                    id="successMessage"
+                    class="success-message">
+
+                </div>
+
+                <!-- ================= Submit ================= -->
+
+                <button
+                    type="submit"
+                    class="register-button">
+
+                    Get Started
+
+                    <i class="fa-solid fa-arrow-right-long"></i>
+
+                </button>
+
+                <!-- ================= Login ================= -->
+
+                <p class="login-link">
+
+                    Already have an account?
+
+                    <a href="/login">
+
+                        Sign In
+
+                    </a>
+
+                </p>
+
+            </form>
+            
+            </div>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', path='js/register.js') }}"></script>
+</body>
+</html>
