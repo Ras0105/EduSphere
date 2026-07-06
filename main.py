@@ -428,3 +428,48 @@ def register(
 @app.get("/logout")
 def logout(request:Request):
     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # ======================================================
+# # Admin Dashboard
+# # ======================================================
+# @app.get("/admin-dashboard")
+# def admin_dashboard(req:Request):
+#     if "user_id" not in req.session:
+#         return RedirectResponse(url="/login",status_code=303)
+#     if req.session["role"]!="admin":
+#         return RedirectResponse(url="/student-dashboard",status_code=303)
+#     user = users_collections.find_one(
+#         {
+#             "_id": ObjectId(req.session["user_id"])
+#         }
+#     )
+#     return templates.TemplateResponse(request=req,name="admin_dashboard.html",context={"user":user})
+
+# # ======================================================
+# # Student Dashboard
+# # ======================================================
+# @app.get("/student-dashboard")
+# def student_dashboard(req:Request):
+#     if "user_id" not in req.session:
+#         return RedirectResponse(url="/login",status_code=303)
+#     if req.session["role"]!="student":
+#         return RedirectResponse(url="/admin-dashboard",status_code=303)
+#     user = users_collections.find_one(
+#         {
+#             "_id": ObjectId(req.session["user_id"])
+#         }
+#     )
+#     return templates.TemplateResponse(request=req,name="student_dashboard.html",context={"user":user})
