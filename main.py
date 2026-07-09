@@ -15,7 +15,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from database import users_collections
-
+from datetime import datetime, timedelta
 # ======================================================
 # Load Environment Variables
 # ======================================================
@@ -38,6 +38,12 @@ EMAIL_APP_PASSWORD=os.getenv("EMAIL_APP_PASSWORD")
 
 
 # ======================================================
+# Temporary OTP Storage
+# ======================================================
+reset_otp={}
+
+
+# ======================================================
 # Send OTP Email
 # ======================================================
 
@@ -50,7 +56,7 @@ def send_otp_email(
         Hello,
         Your OTP for resetting your EduSphere account password is:
         {otp}
-        This OTP is valid for 10 minutes.
+        This OTP is valid for 2 minutes.
         If you did not request a password reset, please ignore this email.
         Thank you,
         EduSphere Team
@@ -492,18 +498,28 @@ def forgot_password_page(request:Request):
     )    
 
 @app.post("/forgot-password")
-def forgot_password(request:Request,
+def forgot_password(
+    request:Request,
     email: str = Form(...)                     
     ):
     existing_user = users_collections.find_one({"email": email})
     if existing_user:
-        otp=random.randint(100000,999999)
+        otp = random.randint(100000,999999)
         print(otp)
-        send_otp_email(email,otp)
-        return{
-            "success":True,
-            "message":"OTP generated successfully"
+        created_time = datetime.now()
+
+        reset_otp[email] = {
+            "otp": str(otp),
+            "created_at": created_time,
+            "expiry_time": created_time + timedelta(minutes=3)
         }
+        print(reset_otp)
+        send_otp_email(email,otp)
+        request.session["reset_email"]=email
+        return RedirectResponse(
+            url="/verify-otp",
+            status_code=303
+        )
         # return templates.TemplateResponse(
         #     request=request,
         #     name="change_password.html",
@@ -519,33 +535,149 @@ def forgot_password(request:Request,
         } 
 
 
+@app.get("/verify-otp")
+def verify_otp_page(request: Request):
+
+    email = request.session.get("reset_email")
+
+    stored_otp = reset_otp.get(email)
+
+    if stored_otp:
+
+        return templates.TemplateResponse(
+            request=request,
+            name="verify_otp.html",
+            context={
+                "expiry_time": stored_otp["expiry_time"].timestamp()
+            }
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="verify_otp.html",
+        context={
+            "expiry_time": 0
+        }
+    )
+
+@app.post("/verify-otp")
+def verify_otp(
+    request:Request,
+    otp:str=Form(...)):
+
+    email=request.session.get("reset_email")
+    if not email:
+        return{
+            "success":False,
+            "message":"Session Expired, Try Again"
+        }
+    stored_otp = reset_otp.get(email)
+
+    if stored_otp is None:
+        return {
+            "success": False,
+            "message": "OTP Not Found"
+        }
+
+    current_time = datetime.now()
+
+    expiry_time = stored_otp["expiry_time"]
+
+    print("=" * 50)
+    print("Current Time :", current_time)
+    print("Created Time :", stored_otp["created_at"])
+    print("Expiry Time  :", expiry_time)
+    print("=" * 50)
+
+    if current_time > expiry_time:
+        reset_otp.pop(email, None)
+        return templates.TemplateResponse(
+            request=request,
+            name="verify_otp.html",
+            context={
+                "message":
+                "OTP expired. Please request a new OTP.",
+                "expiry_time": 0
+            }
+        )
+
+    if stored_otp["otp"] != otp:
+        return {
+            "success": False,
+            "message": "Invalid OTP"
+        }
+
+    del reset_otp[email]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="change_password.html",
+    )
+
+
 @app.post("/change-password")
 def change_password(
     request:Request,
-    email: str = Form(...),
     new_password: str = Form(...),
     confirm_password: str = Form(...),
 ):
+    email=request.session.get("reset_email")
+    if not email:
+        return RedirectResponse(
+            url="/forgot-password",
+            status_code=303
+        )
+    
     if new_password != confirm_password:
         return {
             "success": False,
             "message": "Password and Confirm Password do not match."
     }
     hashed_password = pwd_context.hash(new_password)
+
     users_collections.update_one({"email":email},{"$set":{"password":hashed_password}})
+
+    # Cleanup
+    reset_otp.pop(email, None)
+    request.session.pop("reset_email", None)
     return RedirectResponse(
         url="/login",
         status_code=303
     )
+   
 
 
+@app.get("/resend-otp")
+def resend_otp(request: Request):
 
+    email = request.session.get("reset_email")
 
+    if not email:
+        return RedirectResponse(
+            url="/forgot-password",
+            status_code=303
+        )
 
+    otp = random.randint(100000,999999)
 
+    created_time = datetime.now()
 
+    reset_otp[email] = {
+        "otp": str(otp),
+        "created_at": created_time,
+        "expiry_time": created_time + timedelta(minutes=3)
+    }
 
+    send_otp_email(email, otp)
 
+    return templates.TemplateResponse(
+        request=request,
+        name="verify_otp.html",
+        context={
+            "message": "New OTP has been sent to your email.",
+            "expiry_time": reset_otp[email]["expiry_time"].timestamp()
+        }
+    )
 
 # # ======================================================
 # # Admin Dashboard

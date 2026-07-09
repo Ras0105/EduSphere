@@ -52,22 +52,11 @@ EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD")
 
 
-# print(
-
-#     "Email Address :", EMAIL_ADDRESS
-
-# )
-
-# print(
-
-#     "App Password Loaded :", EMAIL_APP_PASSWORD is not None
-
-# )
-
-
 # ======================================================
-# Send OTP Email
+# Temporary OTP Storage
 # ======================================================
+
+reset_otp = {}
 
 def send_otp_email(
     receiver_email: str,
@@ -664,7 +653,7 @@ def register(
     )
 
 
-    # ======================================================
+# ======================================================
 # Logout User
 # ======================================================
 
@@ -698,7 +687,7 @@ def logout(request: Request):
 
 
 
-    # ======================================================
+# ======================================================
 # Forgot Password Page
 # ======================================================
 
@@ -716,7 +705,7 @@ def forgot_password_page(request: Request):
 # ======================================================
 @app.post("/forgot-password")
 def forgot_password(
-
+    request: Request,
     email: str = Form(...)
 
 ):
@@ -761,27 +750,140 @@ def forgot_password(
 
     )
 
+    # ==========================================
+    # Store OTP
+    # ==========================================
+
+    reset_otp[email] = otp
+
     print(
 
         f"\nGenerated OTP : {otp}\n"
 
     )
+
+    print(reset_otp)
+
     # ==========================================
     # Send OTP Email
     # ==========================================
 
-    send_otp_email(
+    send_otp_email(email, otp)
 
-      email,
+    request.session["reset_email"] = email
 
-      otp
+    return RedirectResponse(
+
+    url="/verify-otp",
+
+    status_code=303
+
+    )  
+
+
+
+
+
+# ======================================================
+# Verify OTP Page
+# ======================================================
+
+@app.get("/verify-otp")
+def verify_otp_page(request: Request):
+
+    return templates.TemplateResponse(
+
+        request=request,
+
+        name="verify_otp.html"
 
     )
+
+
+
+# ======================================================
+# Verify OTP
+# ======================================================
+
+@app.post("/verify-otp")
+def verify_otp(
+
+    request: Request,
+
+    otp: str = Form(...)
+
+):
+
+    # ==========================================
+    # Get Email from Session
+    # ==========================================
+
+    email = request.session.get(
+
+        "reset_email"
+
+    )
+
+    # ==========================================
+    # Check Session
+    # ==========================================
+
+    if not email:
+
+        return {
+
+            "success": False,
+
+            "message": "Session expired. Please try again."
+
+        }
+
+    # ==========================================
+    # Get Stored OTP
+    # ==========================================
+
+    stored_otp = reset_otp.get(
+
+        email
+
+    )
+
+    # ==========================================
+    # OTP Not Found
+    # ==========================================
+
+    if stored_otp is None:
+
+        return {
+
+            "success": False,
+
+            "message": "OTP not found."
+
+        }
+
+    # ==========================================
+    # Compare OTP
+    # ==========================================
+
+    if str(stored_otp) != otp:
+
+        return {
+
+            "success": False,
+
+            "message": "Invalid OTP."
+
+        }
+
+    # ==========================================
+    # OTP Verified
+    # ==========================================
 
     return {
 
         "success": True,
 
-        "message": "OTP generated successfully."
+        "message": "OTP verified successfully."
 
     }
