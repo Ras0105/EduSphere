@@ -45,51 +45,8 @@
         OTP expires in:
         <span id="timer">02:00</span>
     </h3>
-
-<script>
-
-let expiryTime = Number("{{ expiry_time }}") * 1000;
-// convert seconds to milliseconds
-
-let timer = setInterval(function(){
-
-    let currentTime = new Date().getTime();
-
-    let remainingTime = expiryTime - currentTime;
-
-
-    if(remainingTime <= 0){
-
-        clearInterval(timer);
-
-        document.getElementById("timer").innerHTML = "OTP Expired";
-
-        alert("OTP Expired. Please request a new OTP.");
-
-        // window.location.href = "/forgot-password";
-
-        return;
-    }
-
-
-    let minutes = Math.floor(
-        remainingTime / (1000 * 60)
-    );
-
-    let seconds = Math.floor(
-        (remainingTime % (1000 * 60)) / 1000
-    );
-
-
-    document.getElementById("timer").innerHTML =
-        String(minutes).padStart(2,'0')
-        + ":"
-        +
-        String(seconds).padStart(2,'0');
-
-
-},1000);
-
-</script>
+    
+<script>let expiryTime = Number("{{ expiry_time }}") * 1000;</script>
+<script src="{{ url_for('static', path='js/register.js') }}"></script>
 </body>
 </html>
