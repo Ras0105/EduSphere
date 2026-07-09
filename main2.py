@@ -12,29 +12,57 @@ import random
 import smtplib
 
 from email.mime.text import MIMEText
+
 from email.mime.multipart import MIMEMultipart
 
-from database import users_collections
+from database import users_collection
+
+
 
 # ======================================================
 # Load Environment Variables
 # ======================================================
 # Purpose:
-# Read values from .env file and make them available inside the application
+# Read values from the .env file and make them available
+# inside the application.
 # ======================================================
+
 load_dotenv()
+
 
 # ======================================================
 # Read Environment Variables
 # ======================================================
 # Purpose:
-# Sture important configurations in python variables
+# Store important configuration values in Python variables.
 # ======================================================
-SECRET_KEY=os.getenv("SECRET_KEY")
-MONGODB_URI=os.getenv("MONGODB_URI")
-DATABASE_NAME=os.getenv("DATABASE_NAME")
-EMAIL_ADDRESS=os.getenv("EMAIL_ADDRESS")
-EMAIL_APP_PASSWORD=os.getenv("EMAIL_APP_PASSWORD")
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+MONGODB_URI = os.getenv("MONGODB_URI")
+
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+
+# ======================================================
+# Email Configuration
+# ======================================================
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+
+EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD")
+
+
+# print(
+
+#     "Email Address :", EMAIL_ADDRESS
+
+# )
+
+# print(
+
+#     "App Password Loaded :", EMAIL_APP_PASSWORD is not None
+
+# )
 
 
 # ======================================================
@@ -46,14 +74,22 @@ def send_otp_email(
     otp: int
 ):
     subject = "EduSphere Password Reset OTP"
+
     body = f"""
-        Hello,
-        Your OTP for resetting your EduSphere account password is:
-        {otp}
-        This OTP is valid for 10 minutes.
-        If you did not request a password reset, please ignore this email.
-        Thank you,
-        EduSphere Team
+
+Hello,
+
+Your OTP for resetting your EduSphere account password is:
+
+{otp}
+
+This OTP is valid for 10 minutes.
+
+If you did not request a password reset, please ignore this email.
+
+Thank you,
+EduSphere Team
+
 """
 
     message = MIMEMultipart()
@@ -80,10 +116,16 @@ def send_otp_email(
 
 
 
+
 # ======================================================
 # FastAPI Application
 # ======================================================
+
+
+
 app = FastAPI()
+
+
 
 
 # ======================================================
@@ -93,41 +135,30 @@ app = FastAPI()
 # Enable secure session management for the application.
 # It remembers the logged-in user by using a signed cookie.
 # ======================================================
+
 app.add_middleware(
+    SessionMiddleware,
 
-SessionMiddleware,
+    # Secret key used to sign the session cookie.
+    # Read from the .env file.
+    secret_key=SECRET_KEY,
 
-# Secret key used to sign the session cookie.
+    # Session cookie name.
+    # This name will appear in the browser cookies.
+    session_cookie="ums_session",
 
-#Read from the .env file.
+    # Prevent JavaScript from reading the cookie.
+    # Helps protect against XSS attacks.
+    https_only=False,
 
-secret_key=SECRET_KEY,
+    # Prevent JavaScript access to the cookie.
+    # Always keep this True.
+    same_site="lax", #strict/lax/none
 
-# Session cookie name.
-
-# This name will appear in the browser cookies.
-
-session_cookie="ums_session",
-
-# Prevent JavaScript from reading the cookie.
-
-# Helps protect against XSS attacks.
-
-https_only=False,
-
-# Prevent JavaScript access to the cookie.
-
-# Always keep this True.
-
-same_site="lax",
-
-# Browser cannot access the cookie using JavaSc
-
-# This improves security.
-
-max_age=60 * 60 * 24, # 86400seconds
+    # Browser cannot access the cookie using JavaScript.
+    # This improves security.
+    max_age=60 * 60 * 24,
 )
-
 
 
 # ======================================================
@@ -188,89 +219,246 @@ def home(request: Request):
     )
 
 
-# ======================================================
-# Login Page
-# ======================================================
-
 @app.get("/login")
-def login_page(req: Request):
+def login_page(request: Request):
 
     return templates.TemplateResponse(
-        request=req,
+        request=request,
         name="login.html"
     )
 
+
+
 @app.post("/login")
 def login(
-    request:Request,
-    email:str =Form(...),
-    password:str =Form(...)
-    ):
-    # ======================================================
-    # Finding the user
-    # ======================================================
-    user=users_collections.find_one({"email":email})
+
+    request: Request,
+
+    email: str = Form(...),
+
+    password: str = Form(...)
+
+):
 
     # ======================================================
-    # User not found
+    # Search User by Email
     # ======================================================
+
+    user = users_collection.find_one(
+
+        {
+
+            "email": email
+
+        }
+
+    )
+
+    # ======================================================
+    # Email Not Found
+    # ======================================================
+
     if not user:
-        return{"success":False,"message":"Email is not regestered."}
-    # ======================================================
-    # Checking password
-    # ======================================================    
-    password_matchd=pwd_context.verify(password,user["password"])
+
+        return {
+
+            "success": False,
+
+            "message": "Email is not registered."
+
+        }
 
     # ======================================================
-    # Incorrect password
-    # ======================================================   
-    if not password_matchd:
-        return{"success":False,"message":"Incorrect password"}
-    
+    # Verify Password
     # ======================================================
-    # Check Role
-    # ======================================================   
-    role=user["role"]
-    request.session["user_id"]=str(user["_id"])
-    request.session["role"]=user["role"]
-    if role=="admin":
-        return RedirectResponse(url="/admin-dashboard",status_code=303)
+
+    password_matched = pwd_context.verify(
+
+        password,
+
+        user["password"]
+
+    )
+
+    # ======================================================
+    # Invalid Password
+    # ======================================================
+
+    if not password_matched:
+
+        return {
+
+            "success": False,
+
+            "message": "Incorrect password."
+
+        }
+
+    # ======================================================
+    # Check User Role
+    # ======================================================
+
+    role = user["role"]
+
+
+    # ======================================================
+    # Create User Session
+    # ======================================================
+    # Purpose:
+    # Remember the logged-in user.
+    # Only store the minimum information needed.
+    # ======================================================
+
+    request.session["user_id"] = str(user["_id"])
+
+    request.session["role"] = user["role"]
+
+    # ======================================================
+    # Redirect According to Role
+    # ======================================================
+
+    if role == "admin":
+
+        return RedirectResponse(
+
+            url="/admin-dashboard",
+
+            status_code=303
+
+        )
+
     else:
-        return RedirectResponse(url="/student-dashboard",status_code=303)
-    
+
+        return RedirectResponse(
+
+            url="/student-dashboard",
+
+            status_code=303
+
+        )
+
 
 # ======================================================
 # Admin Dashboard
 # ======================================================
-@app.get("/admin-dashboard")
-def admin_dashboard(req:Request):
-    if "user_id" not in req.session:
-        return RedirectResponse(url="/login",status_code=303)
-    if req.session["role"]!="admin":
-        return RedirectResponse(url="/student-dashboard",status_code=303)
-    return templates.TemplateResponse(request=req,name="admin_dashboard.html")
 
+# ======================================================
+# Admin Dashboard
+# ======================================================
+
+@app.get("/admin-dashboard")
+def admin_dashboard(request: Request):
+
+    # ======================================================
+    # Check Login Session
+    # ======================================================
+    # Purpose:
+    # Allow access only if the user is logged in.
+    # ======================================================
+
+    if "user_id" not in request.session:
+
+        return RedirectResponse(
+
+            url="/login",
+
+            status_code=303
+
+        )
+
+    # ======================================================
+    # Check User Role
+    # ======================================================
+    # Purpose:
+    # Only Admin can access Admin Dashboard.
+    # ======================================================
+
+    if request.session["role"] != "admin":
+
+        return RedirectResponse(
+
+            url="/student-dashboard",
+
+            status_code=303
+
+        )
+
+    # ======================================================
+    # Show Admin Dashboard
+    # ======================================================
+
+    return templates.TemplateResponse(
+
+        request=request,
+
+        name="admin_dashboard.html"
+
+    )
 
 # ======================================================
 # Student Dashboard
 # ======================================================
+
 @app.get("/student-dashboard")
-def student_dashboard(req:Request):
-    if "user_id" not in req.session:
-        return RedirectResponse(url="/login",status_code=303)
-    if req.session["role"]!="student":
-        return RedirectResponse(url="/admin-dashboard",status_code=303)
-    return templates.TemplateResponse(request=req,name="student_dashboard.html")
+def student_dashboard(request: Request):
+
+    # ======================================================
+    # Check Login Session
+    # ======================================================
+    # Purpose:
+    # Allow access only if the user is logged in.
+    # ======================================================
+
+    if "user_id" not in request.session:
+
+        return RedirectResponse(
+
+            url="/login",
+
+            status_code=303
+
+        )
+
+    # ======================================================
+    # Check User Role
+    # ======================================================
+    # Purpose:
+    # Only Student can access Student Dashboard.
+    # ======================================================
+
+    if request.session["role"] != "student":
+
+        return RedirectResponse(
+
+            url="/admin-dashboard",
+
+            status_code=303
+
+        )
+
+    # ======================================================
+    # Show Student Dashboard
+    # ======================================================
+
+    return templates.TemplateResponse(
+
+        request=request,
+
+        name="student_dashboard.html"
+
+    )
+
+
 
 # ======================================================
 # Register Page
 # ======================================================
 
 @app.get("/register")
-def register_page(req: Request):
+def register_page(request: Request):
 
     return templates.TemplateResponse(
-        request=req,
+        request=request,
         name="register.html"
     )
 
@@ -317,7 +505,7 @@ def register(
     # Prevent users from registering with the same email.
     # ======================================================
 
-    existing_user = users_collections.find_one(
+    existing_user = users_collection.find_one(
 
         {
 
@@ -453,7 +641,7 @@ def register(
     # Insert the user document into users collection.
     # ======================================================
 
-    users_collections.insert_one(
+    users_collection.insert_one(
 
         user
 
@@ -475,106 +663,125 @@ def register(
 
     )
 
+
+    # ======================================================
+# Logout User
+# ======================================================
+
 @app.get("/logout")
-def logout(request:Request):
+def logout(request: Request):
+
+    # ======================================================
+    # Clear User Session
+    # ======================================================
+    # Purpose:
+    # Remove all session data.
+    # After this, FastAPI no longer remembers
+    # the logged-in user.
+    # ======================================================
+
     request.session.clear()
+
+    # ======================================================
+    # Redirect to Login Page
+    # ======================================================
+
     return RedirectResponse(
+
         url="/login",
+
         status_code=303
+
     )
 
+
+
+
+
+    # ======================================================
+# Forgot Password Page
+# ======================================================
 
 @app.get("/forgot-password")
-def forgot_password_page(request:Request):
+def forgot_password_page(request: Request):
+
     return templates.TemplateResponse(
         request=request,
-        name="forgot.html"
-    )    
-
-@app.post("/forgot-password")
-def forgot_password(request:Request,
-    email: str = Form(...)                     
-    ):
-    existing_user = users_collections.find_one({"email": email})
-    if existing_user:
-        otp=random.randint(100000,999999)
-        print(otp)
-        send_otp_email(email,otp)
-        return{
-            "success":True,
-            "message":"OTP generated successfully"
-        }
-        # return templates.TemplateResponse(
-        #     request=request,
-        #     name="change_password.html",
-        #     context={
-        #         "request": request,
-        #         "email": email
-        #     }
-        # )  
-    else:
-        return {
-            "success": False,
-            "message": "Email not registered."
-        } 
-
-
-@app.post("/change-password")
-def change_password(
-    request:Request,
-    email: str = Form(...),
-    new_password: str = Form(...),
-    confirm_password: str = Form(...),
-):
-    if new_password != confirm_password:
-        return {
-            "success": False,
-            "message": "Password and Confirm Password do not match."
-    }
-    hashed_password = pwd_context.hash(new_password)
-    users_collections.update_one({"email":email},{"$set":{"password":hashed_password}})
-    return RedirectResponse(
-        url="/login",
-        status_code=303
+        name="forgot_password.html"
     )
 
 
+# ======================================================
+# Forgot Password
+# ======================================================
+@app.post("/forgot-password")
+def forgot_password(
 
+    email: str = Form(...)
 
+):
 
+    # ==========================================
+    # Check whether the email exists
+    # ==========================================
 
+    user = users_collection.find_one(
 
+        {
 
+            "email": email
 
+        }
 
-# # ======================================================
-# # Admin Dashboard
-# # ======================================================
-# @app.get("/admin-dashboard")
-# def admin_dashboard(req:Request):
-#     if "user_id" not in req.session:
-#         return RedirectResponse(url="/login",status_code=303)
-#     if req.session["role"]!="admin":
-#         return RedirectResponse(url="/student-dashboard",status_code=303)
-#     user = users_collections.find_one(
-#         {
-#             "_id": ObjectId(req.session["user_id"])
-#         }
-#     )
-#     return templates.TemplateResponse(request=req,name="admin_dashboard.html",context={"user":user})
+    )
 
-# # ======================================================
-# # Student Dashboard
-# # ======================================================
-# @app.get("/student-dashboard")
-# def student_dashboard(req:Request):
-#     if "user_id" not in req.session:
-#         return RedirectResponse(url="/login",status_code=303)
-#     if req.session["role"]!="student":
-#         return RedirectResponse(url="/admin-dashboard",status_code=303)
-#     user = users_collections.find_one(
-#         {
-#             "_id": ObjectId(req.session["user_id"])
-#         }
-#     )
-#     return templates.TemplateResponse(request=req,name="student_dashboard.html",context={"user":user})
+    # ==========================================
+    # Email not found
+    # ==========================================
+
+    if not user:
+
+        return {
+
+            "success": False,
+
+            "message": "This email is not registered."
+
+        }
+
+    # ==========================================
+    # Generate 6-Digit OTP
+    # ==========================================
+
+    otp = random.randint(
+
+        100000,
+
+        999999
+
+    )
+
+    print(
+
+        f"\nGenerated OTP : {otp}\n"
+
+    )
+    # ==========================================
+    # Send OTP Email
+    # ==========================================
+
+    send_otp_email(
+
+      email,
+
+      otp
+
+    )
+
+    return {
+
+        "success": True,
+
+        "message": "OTP generated successfully."
+
+    }
