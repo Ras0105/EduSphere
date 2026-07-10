@@ -54,7 +54,9 @@
                     <h2>Create Account</h2>
                     <p>Join the university management platform</p>
                 </div>
-
+            {% if message %}
+                <p style="color:red;">{{ message }}</p>
+            {% endif %}
             <form    action="/register"  method="POST" enctype="multipart/form-data"  autocomplete="off">
 
                 <!-- ================= Profile Image ================= -->

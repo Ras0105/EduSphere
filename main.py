@@ -180,11 +180,13 @@ pwd_context = CryptContext(
     deprecated="auto"
 )
 
+# allowed image types/extensions for profile picture upload
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 # ======================================================
-# Home Page
+# Pages
 # ======================================================
-
 @app.get("/")
 def home(request: Request):
 
@@ -193,100 +195,88 @@ def home(request: Request):
         name="index.html"
     )
 
-
-# ======================================================
-# Login Page
-# ======================================================
-
 @app.get("/login")
 def login_page(req: Request):
 
+    message = req.session.pop("flash_message", "")
+
     return templates.TemplateResponse(
         request=req,
-        name="login.html"
+        name="login.html",
+        context={"message": message}
     )
 
 @app.post("/login")
 def login(
-    request:Request,
-    email:str =Form(...),
-    password:str =Form(...)
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...)
     ):
     # ======================================================
     # Finding the user
     # ======================================================
-    user=users_collections.find_one({"email":email})
+    user = users_collections.find_one({"email": email})
 
     # ======================================================
     # User not found
     # ======================================================
     if not user:
-        return{"success":False,"message":"Email is not regestered."}
+        request.session["flash_message"] = "Email is not registered."
+        return RedirectResponse(url="/login", status_code=303)
+
     # ======================================================
     # Checking password
-    # ======================================================    
-    password_matchd=pwd_context.verify(password,user["password"])
+    # ======================================================
+    password_matchd = pwd_context.verify(password, user["password"])
 
     # ======================================================
     # Incorrect password
-    # ======================================================   
+    # ======================================================
     if not password_matchd:
-        return{"success":False,"message":"Incorrect password"}
-    
+        request.session["flash_message"] = "Incorrect password"
+        return RedirectResponse(url="/login", status_code=303)
+
     # ======================================================
     # Check Role
-    # ======================================================   
-    role=user["role"]
-    request.session["user_id"]=str(user["_id"])
-    request.session["role"]=user["role"]
-    if role=="admin":
-        return RedirectResponse(url="/admin-dashboard",status_code=303)
+    # ======================================================
+    role = user["role"]
+    request.session["user_id"] = str(user["_id"])
+    request.session["role"] = user["role"]
+    if role == "admin":
+        return RedirectResponse(url="/admin-dashboard", status_code=303)
     else:
-        return RedirectResponse(url="/student-dashboard",status_code=303)
-    
+        return RedirectResponse(url="/student-dashboard", status_code=303)
 
-# ======================================================
-# Admin Dashboard
-# ======================================================
 @app.get("/admin-dashboard")
-def admin_dashboard(req:Request):
+def admin_dashboard(req: Request):
     if "user_id" not in req.session:
-        return RedirectResponse(url="/login",status_code=303)
-    if req.session["role"]!="admin":
-        return RedirectResponse(url="/student-dashboard",status_code=303)
-    return templates.TemplateResponse(request=req,name="admin_dashboard.html")
+        return RedirectResponse(url="/login", status_code=303)
+    if req.session.get("role") != "admin":
+        return RedirectResponse(url="/student-dashboard", status_code=303)
+    return templates.TemplateResponse(request=req, name="admin_dashboard.html")
 
-
-# ======================================================
-# Student Dashboard
-# ======================================================
 @app.get("/student-dashboard")
-def student_dashboard(req:Request):
+def student_dashboard(req: Request):
     if "user_id" not in req.session:
-        return RedirectResponse(url="/login",status_code=303)
-    if req.session["role"]!="student":
-        return RedirectResponse(url="/admin-dashboard",status_code=303)
-    return templates.TemplateResponse(request=req,name="student_dashboard.html")
-
-# ======================================================
-# Register Page
-# ======================================================
+        return RedirectResponse(url="/login", status_code=303)
+    if req.session.get("role") != "student":
+        return RedirectResponse(url="/admin-dashboard", status_code=303)
+    return templates.TemplateResponse(request=req, name="student_dashboard.html")
 
 @app.get("/register")
 def register_page(req: Request):
 
+    message = req.session.pop("flash_message", "")
+
     return templates.TemplateResponse(
         request=req,
-        name="register.html"
+        name="register.html",
+        context={"message": message}
     )
-
-# ======================================================
-# Register User
-# ======================================================
 
 @app.post("/register")
 def register(
-
+    request: Request,
     role: str = Form(...),
     full_name: str = Form(...),
     email: str = Form(...),
@@ -295,194 +285,101 @@ def register(
     confirm_password: str = Form(...),
     department: str = Form(...),
     profile_image: UploadFile = File(...),
-    terms: str = Form(...)
-
+    terms: str | None = Form(None)
 ):
+
+    # ======================================================
+    # Check Terms Accepted
+    # ======================================================
+    if not terms:
+        request.session["flash_message"] = "Please accept the terms and conditions."
+        return RedirectResponse(url="/register", status_code=303)
 
     # ======================================================
     # Check Password Match
     # ======================================================
-    # Purpose:
-    # Make sure Password and Confirm Password are same.
-    # ======================================================
-
     if password != confirm_password:
-
-        return {
-
-            "success": False,
-
-            "message": "Password and Confirm Password do not match."
-
-        }
+        request.session["flash_message"] = "Password and Confirm Password do not match."
+        return RedirectResponse(url="/register", status_code=303)
 
     # ======================================================
     # Check Duplicate Email
     # ======================================================
-    # Purpose:
-    # Prevent users from registering with the same email.
-    # ======================================================
-
-    existing_user = users_collections.find_one(
-
-        {
-
-            "email": email
-
-        }
-
-    )
+    existing_user = users_collections.find_one({"email": email})
 
     if existing_user:
-
-        return {
-
-            "success": False,
-
-            "message": "Email is already registered."
-
-        }
+        request.session["flash_message"] = "Email is already registered."
+        return RedirectResponse(url="/register", status_code=303)
 
     # ======================================================
-    # Check Profile Image
+    # Check Profile Image Presence
+    # ======================================================
+    if not profile_image.filename:
+        request.session["flash_message"] = "Please select a profile image."
+        return RedirectResponse(url="/register", status_code=303)
+
+    # ======================================================
+    # Validate Profile Image Type & Extension
     # ======================================================
     # Purpose:
-    # Make sure user selected a profile image.
+    # Prevent uploading non-image files (e.g. .exe, .php, .sh)
+    # by checking both the browser-reported content type
+    # and the file extension.
     # ======================================================
 
-    if not profile_image.filename:
+    file_extension = os.path.splitext(profile_image.filename)[1].lower()
 
-        return {
-
-            "success": False,
-
-            "message": "Please select a profile image."
-
-        }
+    if (
+        profile_image.content_type not in ALLOWED_IMAGE_TYPES
+        or file_extension not in ALLOWED_IMAGE_EXTENSIONS
+    ):
+        request.session["flash_message"] = "Only JPG, PNG, or WEBP images are allowed."
+        return RedirectResponse(url="/register", status_code=303)
 
     # ======================================================
     # Generate Unique Image Name (UUID)
     # ======================================================
-    # Purpose:
-    # Create a unique filename so that no two users
-    # can overwrite each other's images.
-    # ======================================================
+    unique_filename = f"{uuid.uuid4().hex}{file_extension}"
 
-    file_extension = os.path.splitext(
-
-        profile_image.filename
-
-    )[1]
-
-    unique_filename = (
-
-        f"{uuid.uuid4().hex}"
-
-        f"{file_extension}"
-
-    )
-
-    image_path = os.path.join(
-
-        UPLOAD_FOLDER,
-
-        unique_filename
-
-    )
+    image_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
     # ======================================================
     # Save Uploaded Image
     # ======================================================
-    # Purpose:
-    # Save the uploaded image into static/uploads folder.
-    # ======================================================
-
-    with open(
-
-        image_path,
-
-        "wb"
-
-    ) as buffer:
-
-        shutil.copyfileobj(
-
-            profile_image.file,
-
-            buffer
-
-        )
+    with open(image_path, "wb") as buffer:
+        shutil.copyfileobj(profile_image.file, buffer)
 
     # ======================================================
     # Hash Password
     # ======================================================
-    # Purpose:
-    # Convert plain password into encrypted bcrypt hash.
-    # Never store the original password.
-    # ======================================================
-
-    hashed_password = pwd_context.hash(
-
-        password
-
-    )
+    hashed_password = pwd_context.hash(password)
 
     # ======================================================
     # Create User Document
     # ======================================================
-    # Purpose:
-    # Prepare the data that will be stored in MongoDB.
-    # ======================================================
-
     user = {
-
         "role": role,
-
         "full_name": full_name,
-
         "email": email,
-
         "mobile": mobile,
-
         "password": hashed_password,
-
         "department": department,
-
         "profile_image": unique_filename
-
     }
 
     # ======================================================
     # Save User in MongoDB
     # ======================================================
-    # Purpose:
-    # Insert the user document into users collection.
-    # ======================================================
-
-    users_collections.insert_one(
-
-        user
-
-    )
+    users_collections.insert_one(user)
 
     # ======================================================
     # Redirect to Login Page
     # ======================================================
-    # Purpose:
-    # After successful registration,
-    # redirect user to Login page.
-    # ======================================================
-
-    return RedirectResponse(
-
-        url="/login",
-
-        status_code=303
-
-    )
+    request.session["flash_message"] = "Registration successful. Please log in."
+    return RedirectResponse(url="/login", status_code=303)
 
 @app.get("/logout")
-def logout(request:Request):
+def logout(request: Request):
     request.session.clear()
     return RedirectResponse(
         url="/login",
@@ -490,97 +387,79 @@ def logout(request:Request):
     )
 
 
+
 @app.get("/forgot-password")
-def forgot_password_page(request:Request):
+def forgot_password_page(request: Request):
+    message = request.session.pop("flash_message", "")
     return templates.TemplateResponse(
         request=request,
-        name="forgot.html"
-    )    
+        name="forgot.html",
+        context={"message": message}
+    )   
 
 @app.post("/forgot-password")
 def forgot_password(
-    request:Request,
-    email: str = Form(...)                     
-    ):
+    request: Request,
+    email: str = Form(...)
+):
     existing_user = users_collections.find_one({"email": email})
     if existing_user:
-        otp = random.randint(100000,999999)
+        otp = random.randint(100000, 999999)
         print(otp)
         created_time = datetime.now()
 
         reset_otp[email] = {
             "otp": str(otp),
             "created_at": created_time,
-            "expiry_time": created_time + timedelta(minutes=3)
+            "expiry_time": created_time + timedelta(minutes=1)
         }
-        print(reset_otp)
-        send_otp_email(email,otp)
-        request.session["reset_email"]=email
-        return RedirectResponse(
-            url="/verify-otp",
-            status_code=303
-        )
-        # return templates.TemplateResponse(
-        #     request=request,
-        #     name="change_password.html",
-        #     context={
-        #         "request": request,
-        #         "email": email
-        #     }
-        # )  
+        send_otp_email(email, otp)
+        request.session["reset_email"] = email
+        request.session.pop("otp_verified", None) 
+        return RedirectResponse(url="/verify-otp", status_code=303)
     else:
-        return {
-            "success": False,
-            "message": "Email not registered."
-        } 
-
+        request.session["flash_message"] = "Email not registered."
+        return RedirectResponse(url="/forgot-password", status_code=303)
 
 @app.get("/verify-otp")
 def verify_otp_page(request: Request):
-
     email = request.session.get("reset_email")
+    if not email:
+        return RedirectResponse(url="/forgot-password", status_code=303)
+
+    message = request.session.pop("flash_message", "")
 
     stored_otp = reset_otp.get(email)
-
-    if stored_otp:
-
-        return templates.TemplateResponse(
-            request=request,
-            name="verify_otp.html",
-            context={
-                "expiry_time": stored_otp["expiry_time"].timestamp()
-            }
-        )
+    expiry_time = stored_otp["expiry_time"].timestamp() if stored_otp else 0
 
     return templates.TemplateResponse(
         request=request,
         name="verify_otp.html",
         context={
-            "expiry_time": 0
+            "message": message,
+            "expiry_time": expiry_time
         }
     )
 
 @app.post("/verify-otp")
 def verify_otp(
-    request:Request,
-    otp:str=Form(...)):
+    request: Request,
+    otp: str = Form(...)
+):
 
-    email=request.session.get("reset_email")
+    email = request.session.get("reset_email")
+
     if not email:
-        return{
-            "success":False,
-            "message":"Session Expired, Try Again"
-        }
+        request.session["flash_message"] = "Session Expired, Try Again"
+        return RedirectResponse(url="/verify-otp", status_code=303)
+
     stored_otp = reset_otp.get(email)
 
     if stored_otp is None:
-        return {
-            "success": False,
-            "message": "OTP Not Found"
-        }
+        request.session["flash_message"] = "OTP expired. Please request a new OTP."
+        return RedirectResponse(url="/verify-otp", status_code=303)
 
     current_time = datetime.now()
-
     expiry_time = stored_otp["expiry_time"]
 
     print("=" * 50)
@@ -591,122 +470,85 @@ def verify_otp(
 
     if current_time > expiry_time:
         reset_otp.pop(email, None)
-        return templates.TemplateResponse(
-            request=request,
-            name="verify_otp.html",
-            context={
-                "message":
-                "OTP expired. Please request a new OTP.",
-                "expiry_time": 0
-            }
-        )
+        request.session["flash_message"] = "OTP expired. Please request a new OTP."
+        return RedirectResponse(url="/verify-otp", status_code=303)
 
     if stored_otp["otp"] != otp:
-        return {
-            "success": False,
-            "message": "Invalid OTP"
-        }
+        request.session["flash_message"] = "Invalid OTP"
+        return RedirectResponse(url="/verify-otp", status_code=303)
 
+    # OTP correct
     del reset_otp[email]
 
-    return templates.TemplateResponse(
-        request=request,
-        name="change_password.html",
-    )
+    # ye flag confirm karega ki OTP verify ho chuka hai
+    request.session["otp_verified"] = True
 
+    return RedirectResponse(url="/change-password", status_code=303)
 
-@app.post("/change-password")
-def change_password(
-    request:Request,
-    new_password: str = Form(...),
-    confirm_password: str = Form(...),
-):
-    email=request.session.get("reset_email")
-    if not email:
-        return RedirectResponse(
-            url="/forgot-password",
-            status_code=303
-        )
-    
-    if new_password != confirm_password:
-        return {
-            "success": False,
-            "message": "Password and Confirm Password do not match."
-    }
-    hashed_password = pwd_context.hash(new_password)
-
-    users_collections.update_one({"email":email},{"$set":{"password":hashed_password}})
-
-    # Cleanup
-    reset_otp.pop(email, None)
-    request.session.pop("reset_email", None)
-    return RedirectResponse(
-        url="/login",
-        status_code=303
-    )
-   
-
-
-@app.get("/resend-otp")
+@app.post("/resend-otp")
 def resend_otp(request: Request):
 
     email = request.session.get("reset_email")
 
     if not email:
-        return RedirectResponse(
-            url="/forgot-password",
-            status_code=303
-        )
+        return RedirectResponse(url="/forgot-password", status_code=303)
 
-    otp = random.randint(100000,999999)
-
+    otp = random.randint(100000, 999999)
+    print(otp)
     created_time = datetime.now()
 
     reset_otp[email] = {
         "otp": str(otp),
         "created_at": created_time,
-        "expiry_time": created_time + timedelta(minutes=3)
+        "expiry_time": created_time + timedelta(minutes=1)
     }
 
     send_otp_email(email, otp)
 
+    request.session["flash_message"] = "New OTP has been sent to your email."
+
+    # GET par redirect — isse refresh par POST dobara nahi chalega
+    return RedirectResponse(url="/verify-otp", status_code=303)
+
+@app.get("/change-password")
+def change_password_page(request: Request):
+
+    # bina OTP verify kiye ye page access nahi ho sakta
+    if not request.session.get("otp_verified"):
+        return RedirectResponse(url="/forgot-password", status_code=303)
+
+    message = request.session.pop("flash_message", "")
+
     return templates.TemplateResponse(
         request=request,
-        name="verify_otp.html",
-        context={
-            "message": "New OTP has been sent to your email.",
-            "expiry_time": reset_otp[email]["expiry_time"].timestamp()
-        }
+        name="change_password.html",
+        context={"message": message}
     )
 
-# # ======================================================
-# # Admin Dashboard
-# # ======================================================
-# @app.get("/admin-dashboard")
-# def admin_dashboard(req:Request):
-#     if "user_id" not in req.session:
-#         return RedirectResponse(url="/login",status_code=303)
-#     if req.session["role"]!="admin":
-#         return RedirectResponse(url="/student-dashboard",status_code=303)
-#     user = users_collections.find_one(
-#         {
-#             "_id": ObjectId(req.session["user_id"])
-#         }
-#     )
-#     return templates.TemplateResponse(request=req,name="admin_dashboard.html",context={"user":user})
+@app.post("/change-password")
+def change_password(
+    request: Request,
+    new_password: str = Form(...),
+    confirm_password: str = Form(...),
+):
+    email = request.session.get("reset_email")
 
-# # ======================================================
-# # Student Dashboard
-# # ======================================================
-# @app.get("/student-dashboard")
-# def student_dashboard(req:Request):
-#     if "user_id" not in req.session:
-#         return RedirectResponse(url="/login",status_code=303)
-#     if req.session["role"]!="student":
-#         return RedirectResponse(url="/admin-dashboard",status_code=303)
-#     user = users_collections.find_one(
-#         {
-#             "_id": ObjectId(req.session["user_id"])
-#         }
-#     )
-#     return templates.TemplateResponse(request=req,name="student_dashboard.html",context={"user":user})
+    if not email or not request.session.get("otp_verified"):
+        return RedirectResponse(url="/forgot-password", status_code=303)
+
+    if new_password != confirm_password:
+        request.session["flash_message"] = "Password and Confirm Password do not match."
+        return RedirectResponse(url="/change-password", status_code=303)
+
+    hashed_password = pwd_context.hash(new_password)
+
+    users_collections.update_one(
+        {"email": email},
+        {"$set": {"password": hashed_password}}
+    )
+
+    # cleanup — sab kuch clear karo
+    reset_otp.pop(email, None)
+    request.session.clear()
+
+    return RedirectResponse(url="/login", status_code=303)

@@ -3,50 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Verify OTP</title>
 </head>
 <body>
     <h1>Verify OTP</h1>
-    <p>Enter the 6 digit otp sent to your registered email</p>
+    <p>Enter the 6 digit OTP sent to your registered email</p>
+
+    {% if message %}
+    <p style="color:red;">{{ message }}</p>
+    {% endif %}
+
     <form action="/verify-otp" method="POST">
-
+        <label for="otp">OTP:</label>
         <input
-
             type="text"
-
+            id="otp"
             name="otp"
-
             maxlength="6"
-
+            pattern="[0-9]{6}"
+            inputmode="numeric"
             placeholder="Enter OTP"
-
+            autocomplete="one-time-code"
             required>
 
         <br><br>
 
         <button type="submit">
-
           Verify OTP
-
         </button>
-        {% if message %}
-        <p style="color:red;">
-            {{ message }}
-        </p>
-        {% endif %}
-
     </form>
-    <a href="/resend-otp">
-        <button type="button">
+
+    <form action="/resend-otp" method="POST">
+        <button
+            type="submit"
+            id="resendBtn"
+            disabled>
             Resend OTP
         </button>
-    </a>
+    </form>
+
     <h3>
         OTP expires in:
-        <span id="timer">02:00</span>
+        <span id="timer"><strong>--</strong></span>
     </h3>
-    
-<script>let expiryTime = Number("{{ expiry_time }}") * 1000;</script>
-<script src="{{ url_for('static', path='js/register.js') }}"></script>
+
+    <script>let expiryTime = Number("{{ expiry_time }}") * 1000;</script>
+    <script src="{{ url_for('static', path='js/otp_timer.js') }}"></script>
 </body>
 </html>

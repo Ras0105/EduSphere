@@ -22,7 +22,9 @@
             </div>
             <p>University Management Dashboard Ecosystem</p>
         </div>
-
+        {% if message %}
+            <p style="color:red;">{{ message }}</p>
+        {% endif %}
         <!-- Secure Form Execution Pipeline -->
         <form action="/login" method="POST">
             
