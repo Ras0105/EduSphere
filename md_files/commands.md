@@ -1,7 +1,11 @@
 python.exe -m pip install --upgrade pip
+or
+C:\Users\smt29\AppData\Local\Python\pythoncore-3.14-64\python.exe -m pip install --upgrade pip
 
 python -m venv envi
 envi/Scripts/activate
+
+python.exe -m pip install --upgrade pip
 
 python -m pip install fastapi uvicorn pymongo jinja2 python-multipart
 
@@ -18,3 +22,8 @@ pip list
 uvicorn main:app --reload
 
 pip freeze > requirements.txt
+
+
+open python shell:
+    import secrets
+    print(secrets.token_hex(32))

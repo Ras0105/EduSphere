@@ -1,12 +1,1694 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Student Dashboard | EduSphere</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../static/css/student.css">
 </head>
 <body>
-    <h2>Welcome Student</h2>
-    <a href="/logout"><button type="submit" class="submit-btn">Logout</button></a>
+
+<!-- Mobile Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-container">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> EduSphere<span>.</span>
+            </div>
+            <div class="close-sidebar" id="closeSidebar">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+
+        <!-- Student Profile Mini Card -->
+        <div class="sidebar-profile">
+            <div class="sidebar-avatar-wrap">
+                <img src="https://ui-avatars.com/api/?name=Amit+Kumar&background=3b82f6&color=fff"
+                     alt="Student" id="sidebarAvatar" class="sidebar-avatar">
+                <span class="online-dot"></span>
+            </div>
+            <div class="sidebar-profile-info">
+                <h4 id="sidebarName">Amit Kumar</h4>
+                <p id="sidebarCourse">B.Tech CSE · Sem 4</p>
+                <span class="sidebar-roll">#STU8012</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul id="nav-links">
+                <li><a href="#dashboard" class="active">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span>Dashboard</span>
+                </a></li>
+                <li><a href="#profile">
+                    <i class="fa-solid fa-user-circle"></i>
+                    <span>My Profile</span>
+                </a></li>
+                <li><a href="#course">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>My Course</span>
+                </a></li>
+                <li><a href="#teachers">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>My Teachers</span>
+                </a></li>
+                <li><a href="#attendance">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Attendance</span>
+                </a></li>
+                <li><a href="#fees">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                    <span>Fee Details</span>
+                </a></li>
+                <li><a href="#schedule">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Timetable</span>
+                </a></li>
+                <li><a href="#results">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Results</span>
+                </a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content" id="mainContent">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearch" placeholder="Search anything...">
+                </div>
+            </div>
+
+            <div class="nav-right">
+
+                <!-- Theme Toggle -->
+                <button class="nav-icon" id="themeToggle" title="Toggle Theme">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+
+                <!-- Notifications -->
+                <div class="nav-icon notification-wrapper" id="notifToggle" title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge" id="notifBadge">2</span>
+                    <div class="notif-panel" id="notifPanel">
+                        <div class="notif-header">
+                            <h4>Notifications</h4>
+                            <span id="markAllRead">Mark all read</span>
+                        </div>
+                        <div class="notif-list">
+                            <div class="notif-item unread">
+                                <div class="notif-icon bg-orange">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div class="notif-text">
+                                    <p>Your attendance is below 75% in DBMS</p>
+                                    <span>2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="notif-item unread">
+                                <div class="notif-icon bg-green">
+                                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                                </div>
+                                <div class="notif-text">
+                                    <p>Fee due date: 30 Aug 2026</p>
+                                    <span>1 day ago</span>
+                                </div>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-icon bg-blue">
+                                    <i class="fa-solid fa-book"></i>
+                                </div>
+                                <div class="notif-text">
+                                    <p>New assignment posted in DSA</p>
+                                    <span>2 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile -->
+                <div class="profile-dropdown">
+                    <div class="profile-trigger" id="profileTrigger">
+                        <img src="https://ui-avatars.com/api/?name=Amit+Kumar&background=3b82f6&color=fff"
+                             alt="Student" class="profile-img" id="navAvatar">
+                        <div class="profile-info">
+                            <span class="name" id="navName">Amit Kumar</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="#" class="modal-trigger" data-modal="editProfileModal">
+                            <i class="fa-regular fa-user"></i> Edit Profile
+                        </a>
+                        <a href="#" class="modal-trigger" data-modal="changePasswordModal">
+                            <i class="fa-solid fa-shield-halved"></i> Change Password
+                        </a>
+                        <div class="divider"></div>
+                        <a href="/logout" class="text-danger">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+
+            <!-- ================= 1. DASHBOARD ================= -->
+            <section id="dashboard" class="section-block active-section">
+
+                <!-- Welcome Banner -->
+                <div class="welcome-banner glass-card">
+                    <div class="welcome-left">
+                        <p class="welcome-greeting" id="greetingText">Good Morning,</p>
+                        <h2 id="welcomeName">Amit Kumar! 👋</h2>
+                        <p class="welcome-sub">B.Tech Computer Science & Engineering · Semester 4</p>
+                        <div class="welcome-tags">
+                            <span class="tag tag-blue"><i class="fa-solid fa-id-card"></i> #STU8012</span>
+                            <span class="tag tag-green"><i class="fa-solid fa-circle-check"></i> Enrolled</span>
+                            <span class="tag tag-orange"><i class="fa-solid fa-calendar"></i> Batch 2023–27</span>
+                        </div>
+                    </div>
+                    <div class="welcome-right">
+                        <div class="welcome-avatar-wrap">
+                            <img src="https://ui-avatars.com/api/?name=Amit+Kumar&background=3b82f6&color=fff&size=128"
+                                 alt="Student" class="welcome-avatar" id="welcomeAvatar">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card glass-card" data-nav="attendance">
+                        <div class="stat-icon bg-blue"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <div class="stat-details">
+                            <h3>Overall Attendance</h3>
+                            <h2 id="overallAttendanceStat">84.2%</h2>
+                            <p class="stat-sub text-success"><i class="fa-solid fa-arrow-up"></i> Above minimum</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card" data-nav="fees">
+                        <div class="stat-icon bg-orange"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                        <div class="stat-details">
+                            <h3>Fee Pending</h3>
+                            <h2 class="text-warning">₹45,000</h2>
+                            <p class="stat-sub text-warning"><i class="fa-solid fa-clock"></i> Due: 30 Aug 2026</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card" data-nav="course">
+                        <div class="stat-icon bg-purple"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="stat-details">
+                            <h3>Subjects Enrolled</h3>
+                            <h2>6</h2>
+                            <p class="stat-sub text-muted"><i class="fa-solid fa-layer-group"></i> Semester 4</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card" data-nav="results">
+                        <div class="stat-icon bg-green"><i class="fa-solid fa-award"></i></div>
+                        <div class="stat-details">
+                            <h3>Current CGPA</h3>
+                            <h2>8.4</h2>
+                            <p class="stat-sub text-success"><i class="fa-solid fa-arrow-up"></i> Sem 3: 8.1</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts + Activity Row -->
+                <div class="dashboard-grid">
+
+                    <!-- Attendance Chart -->
+                    <div class="chart-container glass-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-line"></i> Subject-wise Attendance</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="subjectAttChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Fee Progress -->
+                    <div class="chart-container glass-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Fee Status</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="feeDonutChart"></canvas>
+                        </div>
+                        <div class="fee-legend">
+                            <div class="fee-legend-item">
+                                <span class="legend-dot" style="background:#10b981;"></span>
+                                <span>Paid: ₹45,000</span>
+                            </div>
+                            <div class="fee-legend-item">
+                                <span class="legend-dot" style="background:#f59e0b;"></span>
+                                <span>Pending: ₹45,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Classes -->
+                    <div class="today-classes glass-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-calendar-day"></i> Today's Classes</h3>
+                            <span class="today-date" id="todayDateLabel"></span>
+                        </div>
+                        <div class="today-list">
+                            <div class="today-item today-active">
+                                <div class="today-time">
+                                    <span>09:00</span>
+                                    <span>AM</span>
+                                </div>
+                                <div class="today-bar today-bar-blue"></div>
+                                <div class="today-info">
+                                    <h4>Data Structures & Algorithms</h4>
+                                    <p><i class="fa-solid fa-chalkboard-user"></i> Prof. Amit Das &nbsp;·&nbsp; <i class="fa-solid fa-door-open"></i> Room 301</p>
+                                </div>
+                                <span class="today-badge ongoing">Ongoing</span>
+                            </div>
+                            <div class="today-item">
+                                <div class="today-time">
+                                    <span>11:00</span>
+                                    <span>AM</span>
+                                </div>
+                                <div class="today-bar today-bar-purple"></div>
+                                <div class="today-info">
+                                    <h4>Database Management Systems</h4>
+                                    <p><i class="fa-solid fa-chalkboard-user"></i> Dr. R.K. Singh &nbsp;·&nbsp; <i class="fa-solid fa-door-open"></i> Room 204</p>
+                                </div>
+                                <span class="today-badge upcoming">Upcoming</span>
+                            </div>
+                            <div class="today-item">
+                                <div class="today-time">
+                                    <span>02:00</span>
+                                    <span>PM</span>
+                                </div>
+                                <div class="today-bar today-bar-green"></div>
+                                <div class="today-info">
+                                    <h4>Operating Systems</h4>
+                                    <p><i class="fa-solid fa-chalkboard-user"></i> Dr. Priya Mehta &nbsp;·&nbsp; <i class="fa-solid fa-door-open"></i> Room 102</p>
+                                </div>
+                                <span class="today-badge upcoming">Upcoming</span>
+                            </div>
+                            <div class="today-item">
+                                <div class="today-time">
+                                    <span>04:00</span>
+                                    <span>PM</span>
+                                </div>
+                                <div class="today-bar today-bar-orange"></div>
+                                <div class="today-info">
+                                    <h4>Computer Networks</h4>
+                                    <p><i class="fa-solid fa-chalkboard-user"></i> Prof. S. Gupta &nbsp;·&nbsp; <i class="fa-solid fa-door-open"></i> Lab 2</p>
+                                </div>
+                                <span class="today-badge upcoming">Upcoming</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Notices -->
+                    <div class="notices-card glass-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-bullhorn"></i> Notices</h3>
+                        </div>
+                        <div class="notices-list">
+                            <div class="notice-item">
+                                <span class="notice-dot dot-red"></span>
+                                <div class="notice-text">
+                                    <p>Mid-term exams scheduled from Aug 20, 2026</p>
+                                    <span>Posted: 08 Jul 2026</span>
+                                </div>
+                            </div>
+                            <div class="notice-item">
+                                <span class="notice-dot dot-blue"></span>
+                                <div class="notice-text">
+                                    <p>Fee payment last date extended to 30 Aug 2026</p>
+                                    <span>Posted: 07 Jul 2026</span>
+                                </div>
+                            </div>
+                            <div class="notice-item">
+                                <span class="notice-dot dot-green"></span>
+                                <div class="notice-text">
+                                    <p>Industrial visit to TechCorp on 25 Jul 2026</p>
+                                    <span>Posted: 05 Jul 2026</span>
+                                </div>
+                            </div>
+                            <div class="notice-item">
+                                <span class="notice-dot dot-orange"></span>
+                                <div class="notice-text">
+                                    <p>Sports day registrations open — last date: 15 Jul</p>
+                                    <span>Posted: 03 Jul 2026</span>
+                                </div>
+                            </div>
+                            <div class="notice-item">
+                                <span class="notice-dot dot-purple"></span>
+                                <div class="notice-text">
+                                    <p>Library fine waiver till 20 Jul 2026</p>
+                                    <span>Posted: 01 Jul 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= 2. MY PROFILE ================= -->
+            <section id="profile" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">My Profile</h1>
+                    <p class="section-subtitle">View your academic profile. You can update photo, mobile, and password.</p>
+                </div>
+
+                <div class="profile-page-grid">
+
+                    <!-- Left: Profile Card -->
+                    <div class="profile-left">
+                        <div class="profile-main-card glass-card">
+                            <div class="profile-photo-section">
+                                <div class="profile-photo-wrap" id="profilePhotoWrap">
+                                    <img src="https://ui-avatars.com/api/?name=Amit+Kumar&background=3b82f6&color=fff&size=160"
+                                         alt="Student" class="profile-main-img" id="profileMainImg">
+                                    <label class="profile-photo-overlay" for="profilePhotoFile" title="Change Photo">
+                                        <i class="fa-solid fa-camera"></i>
+                                        <span>Change</span>
+                                    </label>
+                                    <input type="file" id="profilePhotoFile" accept="image/*" style="display:none;">
+                                </div>
+                                <div class="profile-photo-hint">Click photo to change</div>
+                            </div>
+                            <div class="profile-main-info">
+                                <h2 id="profilePageName">Amit Kumar</h2>
+                                <p class="profile-roll">#STU8012</p>
+                                <span class="profile-status-badge">
+                                    <i class="fa-solid fa-circle-check"></i> Active Student
+                                </span>
+                            </div>
+
+                            <div class="profile-quick-actions">
+                                <button class="btn btn-primary modal-trigger" data-modal="editProfileModal">
+                                    <i class="fa-solid fa-pen"></i> Edit Profile
+                                </button>
+                                <button class="btn btn-outline modal-trigger" data-modal="changePasswordModal">
+                                    <i class="fa-solid fa-shield-halved"></i> Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info Details -->
+                    <div class="profile-right">
+                        <div class="glass-card info-card">
+                            <div class="info-card-header">
+                                <h3><i class="fa-solid fa-user"></i> Personal Information</h3>
+                                <span class="readonly-badge"><i class="fa-solid fa-lock"></i> Read Only</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Full Name</span>
+                                    <span class="info-value" id="infoName">Amit Kumar</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Father's Name</span>
+                                    <span class="info-value">Ramesh Kumar</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Date of Birth</span>
+                                    <span class="info-value">15 March 2005</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Gender</span>
+                                    <span class="info-value">Male</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Email Address</span>
+                                    <span class="info-value">amit.kumar@edusphere.edu</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Mobile Number</span>
+                                    <span class="info-value editable-field" id="infoMobile">+91 9876543210</span>
+                                </div>
+                                <div class="info-item full-span">
+                                    <span class="info-label">Residential Address</span>
+                                    <span class="info-value">123 Tech Park, New Delhi - 110001</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card info-card" style="margin-top:20px;">
+                            <div class="info-card-header">
+                                <h3><i class="fa-solid fa-graduation-cap"></i> Academic Information</h3>
+                                <span class="readonly-badge"><i class="fa-solid fa-lock"></i> Read Only</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Admission No.</span>
+                                    <span class="info-value">#STU8012</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Admission Date</span>
+                                    <span class="info-value">01 Aug 2023</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Course</span>
+                                    <span class="info-value">B.Tech Computer Science & Eng.</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Current Semester</span>
+                                    <span class="info-value">4th Semester</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Batch</span>
+                                    <span class="info-value">2023 – 2027</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Section</span>
+                                    <span class="info-value">Section A</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Roll Number</span>
+                                    <span class="info-value">CSE/23/042</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Current CGPA</span>
+                                    <span class="info-value text-success">8.4 / 10.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= 3. MY COURSE ================= -->
+            <section id="course" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">My Course</h1>
+                    <p class="section-subtitle">Your enrolled degree program and subject details.</p>
+                </div>
+
+                <!-- Course Overview Card -->
+                <div class="course-overview-card glass-card">
+                    <div class="course-ov-left">
+                        <div class="course-ov-icon">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div class="course-ov-info">
+                            <span class="course-code-badge">CSE · B.Tech</span>
+                            <h2>Computer Science & Engineering</h2>
+                            <div class="course-ov-tags">
+                                <span><i class="fa-regular fa-clock"></i> 4 Years (8 Semesters)</span>
+                                <span><i class="fa-solid fa-users"></i> 240 Students</span>
+                                <span><i class="fa-solid fa-building"></i> Block A, Room 201</span>
+                                <span><i class="fa-solid fa-calendar-alt"></i> Batch 2023 – 2027</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="course-ov-right">
+                        <div class="sem-progress-wrap">
+                            <div class="sem-progress-label">
+                                <span>Semester Progress</span>
+                                <span class="sem-progress-val">4 of 8</span>
+                            </div>
+                            <div class="sem-progress-bar">
+                                <div class="sem-progress-fill" style="width:50%"></div>
+                            </div>
+                            <div class="sem-dots">
+                                <span class="sem-dot done" title="Sem 1">1</span>
+                                <span class="sem-dot done" title="Sem 2">2</span>
+                                <span class="sem-dot done" title="Sem 3">3</span>
+                                <span class="sem-dot current" title="Sem 4">4</span>
+                                <span class="sem-dot" title="Sem 5">5</span>
+                                <span class="sem-dot" title="Sem 6">6</span>
+                                <span class="sem-dot" title="Sem 7">7</span>
+                                <span class="sem-dot" title="Sem 8">8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Semester Subjects -->
+                <div class="section-subheader">
+                    <h3>Current Semester Subjects — Semester 4</h3>
+                </div>
+
+                <div class="subjects-grid">
+                    <div class="subject-card glass-card">
+                        <div class="subject-top">
+                            <div class="subject-icon bg-blue"><i class="fa-solid fa-code"></i></div>
+                            <div class="subject-meta">
+                                <span class="subject-code">CSE-401</span>
+                                <span class="subject-credits">4 Credits</span>
+                            </div>
+                        </div>
+                        <h4>Data Structures & Algorithms</h4>
+                        <p class="subject-teacher"><i class="fa-solid fa-chalkboard-user"></i> Prof. Amit Das</p>
+                        <div class="subject-att-row">
+                            <span>Attendance</span>
+                            <span class="att-val text-success">88%</span>
+                        </div>
+                        <div class="mini-progress-bar">
+                            <div style="width:88%;background:var(--success);"></div>
+                        </div>
+                        <div class="subject-bottom">
+                            <span class="subject-type theory">Theory</span>
+                            <span class="subject-timing"><i class="fa-regular fa-clock"></i> Mon·Wed 09:00 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="subject-card glass-card">
+                        <div class="subject-top">
+                            <div class="subject-icon bg-purple"><i class="fa-solid fa-database"></i></div>
+                            <div class="subject-meta">
+                                <span class="subject-code">CSE-402</span>
+                                <span class="subject-credits">4 Credits</span>
+                            </div>
+                        </div>
+                        <h4>Database Management Systems</h4>
+                        <p class="subject-teacher"><i class="fa-solid fa-chalkboard-user"></i> Dr. R.K. Singh</p>
+                        <div class="subject-att-row">
+                            <span>Attendance</span>
+                            <span class="att-val text-warning">72%</span>
+                        </div>
+                        <div class="mini-progress-bar">
+                            <div style="width:72%;background:var(--warning);"></div>
+                        </div>
+                        <div class="subject-bottom">
+                            <span class="subject-type theory">Theory</span>
+                            <span class="subject-timing"><i class="fa-regular fa-clock"></i> Tue·Thu 11:00 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="subject-card glass-card">
+                        <div class="subject-top">
+                            <div class="subject-icon bg-green"><i class="fa-solid fa-server"></i></div>
+                            <div class="subject-meta">
+                                <span class="subject-code">CSE-403</span>
+                                <span class="subject-credits">4 Credits</span>
+                            </div>
+                        </div>
+                        <h4>Operating Systems</h4>
+                        <p class="subject-teacher"><i class="fa-solid fa-chalkboard-user"></i> Dr. Priya Mehta</p>
+                        <div class="subject-att-row">
+                            <span>Attendance</span>
+                            <span class="att-val text-success">91%</span>
+                        </div>
+                        <div class="mini-progress-bar">
+                            <div style="width:91%;background:var(--success);"></div>
+                        </div>
+                        <div class="subject-bottom">
+                            <span class="subject-type theory">Theory</span>
+                            <span class="subject-timing"><i class="fa-regular fa-clock"></i> Mon·Fri 02:00 PM</span>
+                        </div>
+                    </div>
+
+                    <div class="subject-card glass-card">
+                        <div class="subject-top">
+                            <div class="subject-icon bg-orange"><i class="fa-solid fa-network-wired"></i></div>
+                            <div class="subject-meta">
+                                <span class="subject-code">CSE-404</span>
+                                <span class="subject-credits">3 Credits</span>
+                            </div>
+                        </div>
+                        <h4>Computer Networks</h4>
+                        <p class="subject-teacher"><i class="fa-solid fa-chalkboard-user"></i> Prof. S. Gupta</p>
+                        <div class="subject-att-row">
+                            <span>Attendance</span>
+                            <span class="att-val text-success">85%</span>
+                        </div>
+                        <div class="mini-progress-bar">
+                            <div style="width:85%;background:var(--success);"></div>
+                        </div>
+                        <div class="subject-bottom">
+                            <span class="subject-type lab">Lab</span>
+                            <span class="subject-timing"><i class="fa-regular fa-clock"></i> Wed·Fri 04:00 PM</span>
+                        </div>
+                    </div>
+
+                    <div class="subject-card glass-card">
+                        <div class="subject-top">
+                            <div class="subject-icon" style="background:rgba(239,68,68,0.12);color:#ef4444;">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div class="subject-meta">
+                                <span class="subject-code">CSE-405</span>
+                                <span class="subject-credits">3 Credits</span>
+                            </div>
+                        </div>
+                        <h4>Artificial Intelligence</h4>
+                        <p class="subject-teacher"><i class="fa-solid fa-chalkboard-user"></i> Dr. Neeraj Sharma</p>
+                        <div class="subject-att-row">
+                            <span>Attendance</span>
+                            <span class="att-val text-success">79%</span>
+                        </div>
+                        <div class="mini-progress-bar">
+                            <div style="width:79%;background:var(--sky-blue);"></div>
+                        </div>
+                        <div class="subject-bottom">
+                            <span class="subject-type theory">Theory</span>
+                            <span class="subject-timing"><i class="fa-regular fa-clock"></i> Tue·Thu 02:00 PM</span>
+                        </div>
+                    </div>
+
+                    <div class="subject-card glass-card">
+                        <div class="subject-top">
+                            <div class="subject-icon" style="background:rgba(20,184,166,0.12);color:#14b8a6;">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <div class="subject-meta">
+                                <span class="subject-code">CSE-406</span>
+                                <span class="subject-credits">2 Credits</span>
+                            </div>
+                        </div>
+                        <h4>DBMS Lab</h4>
+                        <p class="subject-teacher"><i class="fa-solid fa-chalkboard-user"></i> Dr. R.K. Singh</p>
+                        <div class="subject-att-row">
+                            <span>Attendance</span>
+                            <span class="att-val text-warning">75%</span>
+                        </div>
+                        <div class="mini-progress-bar">
+                            <div style="width:75%;background:var(--warning);"></div>
+                        </div>
+                        <div class="subject-bottom">
+                            <span class="subject-type lab">Lab</span>
+                            <span class="subject-timing"><i class="fa-regular fa-clock"></i> Sat 10:00 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= 4. MY TEACHERS ================= -->
+            <section id="teachers" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">My Teachers</h1>
+                    <p class="section-subtitle">Faculty assigned to your current semester subjects.</p>
+                </div>
+
+                <div class="teachers-grid">
+
+                    <div class="teacher-card glass-card">
+                        <div class="teacher-card-top">
+                            <img src="https://ui-avatars.com/api/?name=Amit+Das&background=3b82f6&color=fff&size=80"
+                                 alt="Prof. Amit Das" class="teacher-photo">
+                            <div class="teacher-badge-wrap">
+                                <span class="teacher-subject-badge badge-blue">DSA</span>
+                            </div>
+                        </div>
+                        <div class="teacher-card-body">
+                            <h4>Prof. Amit Das</h4>
+                            <p class="teacher-dept"><i class="fa-solid fa-building"></i> Computer Science Dept.</p>
+                            <p class="teacher-qual"><i class="fa-solid fa-graduation-cap"></i> M.Tech (CSE)</p>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-book-open"></i> Data Structures & Algorithms</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-regular fa-clock"></i> Mon & Wed · 09:00–10:30 AM</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-door-open"></i> Room 301, Block B</span>
+                            </div>
+                            <div class="teacher-contact">
+                                <a href="mailto:amitdas@edusphere.edu" class="teacher-contact-btn">
+                                    <i class="fa-regular fa-envelope"></i> Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="teacher-card glass-card">
+                        <div class="teacher-card-top">
+                            <img src="https://ui-avatars.com/api/?name=R+K+Singh&background=8b5cf6&color=fff&size=80"
+                                 alt="Dr. R.K. Singh" class="teacher-photo">
+                            <div class="teacher-badge-wrap">
+                                <span class="teacher-subject-badge badge-purple">DBMS</span>
+                            </div>
+                        </div>
+                        <div class="teacher-card-body">
+                            <h4>Dr. R.K. Singh</h4>
+                            <p class="teacher-dept"><i class="fa-solid fa-building"></i> Computer Science Dept.</p>
+                            <p class="teacher-qual"><i class="fa-solid fa-graduation-cap"></i> Ph.D. (CSE)</p>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-book-open"></i> DBMS & DBMS Lab</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-regular fa-clock"></i> Tue & Thu · 11:00 AM – 12:30 PM</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-door-open"></i> Room 204, Block A</span>
+                            </div>
+                            <div class="teacher-contact">
+                                <a href="mailto:rksingh@edusphere.edu" class="teacher-contact-btn">
+                                    <i class="fa-regular fa-envelope"></i> Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="teacher-card glass-card">
+                        <div class="teacher-card-top">
+                            <img src="https://ui-avatars.com/api/?name=Priya+Mehta&background=10b981&color=fff&size=80"
+                                 alt="Dr. Priya Mehta" class="teacher-photo">
+                            <div class="teacher-badge-wrap">
+                                <span class="teacher-subject-badge badge-green">OS</span>
+                            </div>
+                        </div>
+                        <div class="teacher-card-body">
+                            <h4>Dr. Priya Mehta</h4>
+                            <p class="teacher-dept"><i class="fa-solid fa-building"></i> Computer Science Dept.</p>
+                            <p class="teacher-qual"><i class="fa-solid fa-graduation-cap"></i> Ph.D. (Systems)</p>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-book-open"></i> Operating Systems</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-regular fa-clock"></i> Mon & Fri · 02:00–03:30 PM</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-door-open"></i> Room 102, Block C</span>
+                            </div>
+                            <div class="teacher-contact">
+                                <a href="mailto:priyamehta@edusphere.edu" class="teacher-contact-btn">
+                                    <i class="fa-regular fa-envelope"></i> Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="teacher-card glass-card">
+                        <div class="teacher-card-top">
+                            <img src="https://ui-avatars.com/api/?name=S+Gupta&background=f59e0b&color=fff&size=80"
+                                 alt="Prof. S. Gupta" class="teacher-photo">
+                            <div class="teacher-badge-wrap">
+                                <span class="teacher-subject-badge badge-orange">CN</span>
+                            </div>
+                        </div>
+                        <div class="teacher-card-body">
+                            <h4>Prof. S. Gupta</h4>
+                            <p class="teacher-dept"><i class="fa-solid fa-building"></i> Computer Science Dept.</p>
+                            <p class="teacher-qual"><i class="fa-solid fa-graduation-cap"></i> M.Tech (Networks)</p>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-book-open"></i> Computer Networks (Lab)</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-regular fa-clock"></i> Wed & Fri · 04:00–05:30 PM</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-door-open"></i> Lab 2, Block B</span>
+                            </div>
+                            <div class="teacher-contact">
+                                <a href="mailto:sgupta@edusphere.edu" class="teacher-contact-btn">
+                                    <i class="fa-regular fa-envelope"></i> Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="teacher-card glass-card">
+                        <div class="teacher-card-top">
+                            <img src="https://ui-avatars.com/api/?name=Neeraj+Sharma&background=ef4444&color=fff&size=80"
+                                 alt="Dr. Neeraj Sharma" class="teacher-photo">
+                            <div class="teacher-badge-wrap">
+                                <span class="teacher-subject-badge badge-red">AI</span>
+                            </div>
+                        </div>
+                        <div class="teacher-card-body">
+                            <h4>Dr. Neeraj Sharma</h4>
+                            <p class="teacher-dept"><i class="fa-solid fa-building"></i> AI & ML Dept.</p>
+                            <p class="teacher-qual"><i class="fa-solid fa-graduation-cap"></i> Ph.D. (AI/ML)</p>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-book-open"></i> Artificial Intelligence</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-regular fa-clock"></i> Tue & Thu · 02:00–03:30 PM</span>
+                            </div>
+                            <div class="teacher-info-row">
+                                <span><i class="fa-solid fa-door-open"></i> Room 405, Block A</span>
+                            </div>
+                            <div class="teacher-contact">
+                                <a href="mailto:neeraj@edusphere.edu" class="teacher-contact-btn">
+                                    <i class="fa-regular fa-envelope"></i> Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ================= 5. ATTENDANCE ================= -->
+            <section id="attendance" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">My Attendance</h1>
+                    <p class="section-subtitle">Track your class attendance across all subjects.</p>
+                </div>
+
+                <!-- Attendance Stats -->
+                <div class="stats-grid" style="margin-bottom:28px;">
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-green"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-details">
+                            <h3>Overall Attendance</h3>
+                            <h2 class="text-success">84.2%</h2>
+                            <p class="stat-sub text-success"><i class="fa-solid fa-check"></i> Above 75% minimum</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-blue"><i class="fa-solid fa-calendar-check"></i></div>
+                        <div class="stat-details">
+                            <h3>Classes Attended</h3>
+                            <h2>342</h2>
+                            <p class="stat-sub text-muted">Out of 406 total</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon" style="background:rgba(239,68,68,0.12);color:#ef4444;">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Classes Missed</h3>
+                            <h2 class="text-danger">64</h2>
+                            <p class="stat-sub text-muted">This semester</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="stat-details">
+                            <h3>Low Attendance</h3>
+                            <h2 class="text-warning">1 Subject</h2>
+                            <p class="stat-sub text-warning">DBMS — 72%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Chart -->
+                <div class="glass-card chart-container" style="margin-bottom:24px;">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-chart-bar"></i> Subject-wise Attendance</h3>
+                    </div>
+                    <div class="chart-wrapper" style="height:300px;">
+                        <canvas id="attendanceBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Attendance Table -->
+                <div class="glass-card table-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-table"></i> Detailed Attendance Record</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Subject Code</th>
+                                    <th>Teacher</th>
+                                    <th>Total Classes</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Attendance %</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Data Structures & Algorithms</td>
+                                    <td>CSE-401</td>
+                                    <td>Prof. Amit Das</td>
+                                    <td>68</td>
+                                    <td>60</td>
+                                    <td>8</td>
+                                    <td>
+                                        <div class="att-cell">
+                                            <div class="att-mini-bar"><div style="width:88%;background:var(--success);"></div></div>
+                                            <span class="text-success">88%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status paid">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Database Management Systems</td>
+                                    <td>CSE-402</td>
+                                    <td>Dr. R.K. Singh</td>
+                                    <td>68</td>
+                                    <td>49</td>
+                                    <td>19</td>
+                                    <td>
+                                        <div class="att-cell">
+                                            <div class="att-mini-bar"><div style="width:72%;background:var(--warning);"></div></div>
+                                            <span class="text-warning">72%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status pending">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Operating Systems</td>
+                                    <td>CSE-403</td>
+                                    <td>Dr. Priya Mehta</td>
+                                    <td>70</td>
+                                    <td>64</td>
+                                    <td>6</td>
+                                    <td>
+                                        <div class="att-cell">
+                                            <div class="att-mini-bar"><div style="width:91%;background:var(--success);"></div></div>
+                                            <span class="text-success">91%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status paid">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Computer Networks</td>
+                                    <td>CSE-404</td>
+                                    <td>Prof. S. Gupta</td>
+                                    <td>60</td>
+                                    <td>51</td>
+                                    <td>9</td>
+                                    <td>
+                                        <div class="att-cell">
+                                            <div class="att-mini-bar"><div style="width:85%;background:var(--success);"></div></div>
+                                            <span class="text-success">85%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status paid">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Artificial Intelligence</td>
+                                    <td>CSE-405</td>
+                                    <td>Dr. Neeraj Sharma</td>
+                                    <td>60</td>
+                                    <td>47</td>
+                                    <td>13</td>
+                                    <td>
+                                        <div class="att-cell">
+                                            <div class="att-mini-bar"><div style="width:79%;background:var(--sky-blue);"></div></div>
+                                            <span style="color:var(--sky-blue)">79%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status paid">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>DBMS Lab</td>
+                                    <td>CSE-406</td>
+                                    <td>Dr. R.K. Singh</td>
+                                    <td>40</td>
+                                    <td>30</td>
+                                    <td>10</td>
+                                    <td>
+                                        <div class="att-cell">
+                                            <div class="att-mini-bar"><div style="width:75%;background:var(--warning);"></div></div>
+                                            <span class="text-warning">75%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status pending">Border</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Attendance Note -->
+                    <div class="att-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Minimum attendance required is <strong>75%</strong> per subject. Students below this may be detained from exams.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= 6. FEE DETAILS ================= -->
+            <section id="fees" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">Fee Details</h1>
+                    <p class="section-subtitle">View your complete fee structure and payment history.</p>
+                </div>
+
+                <!-- Fee Summary Cards -->
+                <div class="fee-summary-grid">
+                    <div class="fee-sum-card glass-card fee-paid-card">
+                        <div class="fee-sum-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="fee-sum-info">
+                            <span>Total Fee</span>
+                            <h2>₹90,000</h2>
+                        </div>
+                    </div>
+                    <div class="fee-sum-card glass-card" style="border-color:rgba(16,185,129,0.25);">
+                        <div class="fee-sum-icon" style="background:rgba(16,185,129,0.12);color:var(--success);">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <div class="fee-sum-info">
+                            <span>Amount Paid</span>
+                            <h2 class="text-success">₹45,000</h2>
+                        </div>
+                    </div>
+                    <div class="fee-sum-card glass-card" style="border-color:rgba(245,158,11,0.25);">
+                        <div class="fee-sum-icon" style="background:rgba(245,158,11,0.12);color:var(--warning);">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="fee-sum-info">
+                            <span>Amount Pending</span>
+                            <h2 class="text-warning">₹45,000</h2>
+                        </div>
+                    </div>
+                    <div class="fee-sum-card glass-card" style="border-color:rgba(239,68,68,0.25);">
+                        <div class="fee-sum-icon" style="background:rgba(239,68,68,0.12);color:var(--danger);">
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div class="fee-sum-info">
+                            <span>Due Date</span>
+                            <h2 style="font-size:20px;color:var(--danger);">30 Aug 2026</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fee Progress Bar -->
+                <div class="glass-card fee-progress-card">
+                    <div class="fee-prog-header">
+                        <h3>Payment Progress</h3>
+                        <span class="fee-prog-pct">50% Paid</span>
+                    </div>
+                    <div class="fee-prog-bar-outer">
+                        <div class="fee-prog-bar-fill" id="feeProgressFill" style="width:0%"></div>
+                    </div>
+                    <div class="fee-prog-labels">
+                        <span>₹0</span>
+                        <span>₹22,500</span>
+                        <span>₹45,000</span>
+                        <span>₹67,500</span>
+                        <span>₹90,000</span>
+                    </div>
+                </div>
+
+                <!-- Semester-wise Fee Table -->
+                <div class="glass-card table-card" style="margin-top:24px;">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-table"></i> Semester-wise Fee Structure</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Semester</th>
+                                    <th>Fee Type</th>
+                                    <th>Amount</th>
+                                    <th>Paid On</th>
+                                    <th>Mode</th>
+                                    <th>Status</th>
+                                    <th>Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sem 1</td>
+                                    <td>Tuition + Exam</td>
+                                    <td>₹22,500</td>
+                                    <td>15 Aug 2023</td>
+                                    <td>Online</td>
+                                    <td><span class="status paid">Paid</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-small modal-trigger" data-modal="receiptModal" data-sem="1" data-amount="22,500" data-date="15 Aug 2023">
+                                            <i class="fa-solid fa-receipt"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sem 2</td>
+                                    <td>Tuition + Exam</td>
+                                    <td>₹22,500</td>
+                                    <td>10 Jan 2024</td>
+                                    <td>Online</td>
+                                    <td><span class="status paid">Paid</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-small modal-trigger" data-modal="receiptModal" data-sem="2" data-amount="22,500" data-date="10 Jan 2024">
+                                            <i class="fa-solid fa-receipt"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sem 3</td>
+                                    <td>Tuition + Exam</td>
+                                    <td>₹22,500</td>
+                                    <td>12 Aug 2024</td>
+                                    <td>Cash</td>
+                                    <td><span class="status paid">Paid</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-small modal-trigger" data-modal="receiptModal" data-sem="3" data-amount="22,500" data-date="12 Aug 2024">
+                                            <i class="fa-solid fa-receipt"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sem 4 <span class="current-sem-tag">Current</span></td>
+                                    <td>Tuition + Exam</td>
+                                    <td>₹22,500</td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                    <td>
+                                        <span class="text-muted" style="font-size:12px;">Not Paid</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sem 5 – 8</td>
+                                    <td>Future Semesters</td>
+                                    <td>₹45,000</td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td><span class="status" style="background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2);">Future</span></td>
+                                    <td>—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= 7. TIMETABLE ================= -->
+            <section id="schedule" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">Weekly Timetable</h1>
+                    <p class="section-subtitle">Your complete weekly class schedule.</p>
+                </div>
+
+                <div class="timetable-wrapper glass-card">
+                    <div class="timetable-scroll">
+                        <table class="timetable-table">
+                            <thead>
+                                <tr>
+                                    <th class="time-col">Time</th>
+                                    <th class="day-col today-col">Monday</th>
+                                    <th class="day-col">Tuesday</th>
+                                    <th class="day-col">Wednesday</th>
+                                    <th class="day-col">Thursday</th>
+                                    <th class="day-col">Friday</th>
+                                    <th class="day-col">Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="time-slot">09:00 – 10:30</td>
+                                    <td class="tt-cell tt-blue">
+                                        <div class="tt-subject">DSA</div>
+                                        <div class="tt-info">Prof. Amit Das · Rm 301</div>
+                                    </td>
+                                    <td class="tt-cell tt-purple">
+                                        <div class="tt-subject">DBMS</div>
+                                        <div class="tt-info">Dr. R.K. Singh · Rm 204</div>
+                                    </td>
+                                    <td class="tt-cell tt-blue">
+                                        <div class="tt-subject">DSA</div>
+                                        <div class="tt-info">Prof. Amit Das · Rm 301</div>
+                                    </td>
+                                    <td class="tt-cell tt-purple">
+                                        <div class="tt-subject">DBMS</div>
+                                        <div class="tt-info">Dr. R.K. Singh · Rm 204</div>
+                                    </td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">11:00 – 12:30</td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-red">
+                                        <div class="tt-subject">AI</div>
+                                        <div class="tt-info">Dr. N. Sharma · Rm 405</div>
+                                    </td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-red">
+                                        <div class="tt-subject">AI</div>
+                                        <div class="tt-info">Dr. N. Sharma · Rm 405</div>
+                                    </td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">12:30 – 01:30</td>
+                                    <td colspan="6" class="tt-cell tt-lunch">
+                                        🍽 Lunch Break
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">02:00 – 03:30</td>
+                                    <td class="tt-cell tt-green">
+                                        <div class="tt-subject">OS</div>
+                                        <div class="tt-info">Dr. Priya Mehta · Rm 102</div>
+                                    </td>
+                                    <td class="tt-cell tt-red">
+                                        <div class="tt-subject">AI</div>
+                                        <div class="tt-info">Dr. N. Sharma · Rm 405</div>
+                                    </td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-red">
+                                        <div class="tt-subject">AI</div>
+                                        <div class="tt-info">Dr. N. Sharma · Rm 405</div>
+                                    </td>
+                                    <td class="tt-cell tt-green">
+                                        <div class="tt-subject">OS</div>
+                                        <div class="tt-info">Dr. Priya Mehta · Rm 102</div>
+                                    </td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">04:00 – 05:30</td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-orange">
+                                        <div class="tt-subject">CN Lab</div>
+                                        <div class="tt-info">Prof. S. Gupta · Lab 2</div>
+                                    </td>
+                                    <td class="tt-cell tt-empty">—</td>
+                                    <td class="tt-cell tt-orange">
+                                        <div class="tt-subject">CN Lab</div>
+                                        <div class="tt-info">Prof. S. Gupta · Lab 2</div>
+                                    </td>
+                                    <td class="tt-cell tt-teal">
+                                        <div class="tt-subject">DBMS Lab</div>
+                                        <div class="tt-info">Dr. R.K. Singh · Lab 1</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Timetable Legend -->
+                <div class="tt-legend glass-card">
+                    <h4>Subject Legend</h4>
+                    <div class="tt-legend-grid">
+                        <div class="tt-legend-item"><div class="tt-legend-dot tt-blue"></div><span>DSA — Data Structures & Algorithms</span></div>
+                        <div class="tt-legend-item"><div class="tt-legend-dot tt-purple"></div><span>DBMS — Database Management Systems</span></div>
+                        <div class="tt-legend-item"><div class="tt-legend-dot tt-green"></div><span>OS — Operating Systems</span></div>
+                        <div class="tt-legend-item"><div class="tt-legend-dot tt-orange"></div><span>CN — Computer Networks</span></div>
+                        <div class="tt-legend-item"><div class="tt-legend-dot tt-red"></div><span>AI — Artificial Intelligence</span></div>
+                        <div class="tt-legend-item"><div class="tt-legend-dot tt-teal"></div><span>DBMS Lab</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= 8. RESULTS ================= -->
+            <section id="results" class="section-block">
+                <div class="section-header">
+                    <h1 class="section-title">My Results</h1>
+                    <p class="section-subtitle">Semester-wise academic performance and CGPA.</p>
+                </div>
+
+                <!-- CGPA Stats -->
+                <div class="stats-grid" style="margin-bottom:28px;">
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-green"><i class="fa-solid fa-award"></i></div>
+                        <div class="stat-details">
+                            <h3>Current CGPA</h3>
+                            <h2 class="text-success">8.4</h2>
+                            <p class="stat-sub text-success"><i class="fa-solid fa-arrow-up"></i> Up from 8.1</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-blue"><i class="fa-solid fa-trophy"></i></div>
+                        <div class="stat-details">
+                            <h3>Best Semester</h3>
+                            <h2>Sem 2</h2>
+                            <p class="stat-sub text-muted">SGPA: 8.7</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-purple"><i class="fa-solid fa-ranking-star"></i></div>
+                        <div class="stat-details">
+                            <h3>Class Rank</h3>
+                            <h2>#12</h2>
+                            <p class="stat-sub text-muted">Out of 60 students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon bg-orange"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="stat-details">
+                            <h3>Credits Earned</h3>
+                            <h2>72</h2>
+                            <p class="stat-sub text-muted">Out of 160 total</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CGPA Trend Chart -->
+                <div class="glass-card chart-container" style="margin-bottom:24px;">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-chart-line"></i> CGPA Trend</h3>
+                    </div>
+                    <div class="chart-wrapper" style="height:280px;">
+                        <canvas id="cgpaTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Results Table -->
+                <div class="glass-card table-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-table"></i> Semester-wise Results</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Semester</th>
+                                    <th>Year</th>
+                                    <th>Subjects</th>
+                                    <th>Credits</th>
+                                    <th>SGPA</th>
+                                    <th>CGPA</th>
+                                    <th>Result</th>
+                                    <th>Marksheet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Semester 1</td>
+                                    <td>Aug 2023</td>
+                                    <td>6</td>
+                                    <td>22</td>
+                                    <td>8.2</td>
+                                    <td>8.2</td>
+                                    <td><span class="status paid">Pass</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-small modal-trigger" data-modal="marksheetModal" data-sem="1" data-sgpa="8.2">
+                                            <i class="fa-solid fa-file-alt"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Semester 2</td>
+                                    <td>Jan 2024</td>
+                                    <td>6</td>
+                                    <td>22</td>
+                                    <td>8.7</td>
+                                    <td>8.45</td>
+                                    <td><span class="status paid">Pass</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-small modal-trigger" data-modal="marksheetModal" data-sem="2" data-sgpa="8.7">
+                                            <i class="fa-solid fa-file-alt"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Semester 3</td>
+                                    <td>Aug 2024</td>
+                                    <td>6</td>
+                                    <td>20</td>
+                                    <td>8.1</td>
+                                    <td>8.33</td>
+                                    <td><span class="status paid">Pass</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-small modal-trigger" data-modal="marksheetModal" data-sem="3" data-sgpa="8.1">
+                                            <i class="fa-solid fa-file-alt"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Semester 4 <span class="current-sem-tag">Current</span></td>
+                                    <td>Jan 2025</td>
+                                    <td>6</td>
+                                    <td>20</td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td><span class="status pending">Ongoing</span></td>
+                                    <td><span class="text-muted" style="font-size:12px;">Not Declared</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div style="height:50px;"></div>
+        </div>
+    </main>
+</div>
+
+
+<!-- ============================================================
+     ALL MODALS
+============================================================ -->
+
+<!-- ===== EDIT PROFILE MODAL ===== -->
+<div class="modal-overlay" id="editProfileModal">
+    <div class="modal-box glass-card" style="max-width:480px;">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-pen"></i> Edit Profile</h2>
+            <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <!-- Photo Upload Section -->
+            <div class="modal-photo-upload">
+                <div class="modal-photo-wrap">
+                    <img src="https://ui-avatars.com/api/?name=Amit+Kumar&background=3b82f6&color=fff"
+                         alt="Profile" id="modalPhotoPreview" class="modal-photo-img">
+                    <label class="modal-photo-edit-btn" for="modalPhotoInput" title="Change Photo">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="modalPhotoInput" accept="image/*" style="display:none;">
+                </div>
+                <div class="modal-photo-text">
+                    <p>Click the camera icon to upload a new photo</p>
+                    <span>JPG or PNG · Max 2MB</span>
+                </div>
+            </div>
+
+            <form class="modal-form" id="editProfileForm">
+                <!-- Read-only fields (shown but disabled) -->
+                <div class="form-group">
+                    <label>Full Name <span class="readonly-tag">Read Only</span></label>
+                    <input type="text" class="form-input" value="Amit Kumar" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email Address <span class="readonly-tag">Read Only</span></label>
+                    <input type="email" class="form-input" value="amit.kumar@edusphere.edu" disabled>
+                </div>
+
+                <!-- Editable Fields -->
+                <div class="editable-section-label">
+                    <i class="fa-solid fa-pen-to-square"></i> Editable Fields
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number *</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" class="form-input" id="editMobileInput"
+                               value="+91 9876543210" placeholder="+91 XXXXX XXXXX">
+                    </div>
+                </div>
+
+                <div class="modal-form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CHANGE PASSWORD MODAL ===== -->
+<div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box glass-card" style="max-width:460px;">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-shield-halved"></i> Change Password</h2>
+            <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="changePasswordForm">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <div class="password-wrap">
+                        <input type="password" class="form-input" id="currentPwd" placeholder="Enter current password">
+                        <button type="button" class="pwd-toggle" data-target="currentPwd">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <div class="password-wrap">
+                        <input type="password" class="form-input" id="newPwd" placeholder="Minimum 8 characters">
+                        <button type="button" class="pwd-toggle" data-target="newPwd">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Strength Meter -->
+                    <div class="pwd-strength-wrap" id="strengthWrap" style="display:none;">
+                        <div class="strength-segments">
+                            <div class="strength-seg" id="seg1"></div>
+                            <div class="strength-seg" id="seg2"></div>
+                            <div class="strength-seg" id="seg3"></div>
+                            <div class="strength-seg" id="seg4"></div>
+                        </div>
+                        <span id="strengthText">Weak</span>
+                    </div>
+                    <!-- Requirements Checklist -->
+                    <div class="pwd-requirements" id="pwdRequirements" style="display:none;">
+                        <div class="req-item" id="req-length">
+                            <i class="fa-solid fa-circle-xmark"></i> At least 8 characters
+                        </div>
+                        <div class="req-item" id="req-upper">
+                            <i class="fa-solid fa-circle-xmark"></i> One uppercase letter
+                        </div>
+                        <div class="req-item" id="req-number">
+                            <i class="fa-solid fa-circle-xmark"></i> One number
+                        </div>
+                        <div class="req-item" id="req-special">
+                            <i class="fa-solid fa-circle-xmark"></i> One special character
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <div class="password-wrap">
+                        <input type="password" class="form-input" id="confirmPwd" placeholder="Re-enter new password">
+                        <button type="button" class="pwd-toggle" data-target="confirmPwd">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <p class="field-error" id="pwdMatchErr" style="display:none;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Passwords do not match
+                    </p>
+                </div>
+                <div class="modal-form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-lock"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FEE RECEIPT MODAL ===== -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal-box glass-card" style="max-width:460px;">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-receipt"></i> Fee Receipt</h2>
+            <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="receipt-box" id="receiptContent">
+                <div class="receipt-header">
+                    <div class="receipt-logo">
+                        <i class="fa-solid fa-graduation-cap"></i> EduSphere<span>.</span>
+                    </div>
+                    <p class="receipt-university">EduSphere University, Lucknow, UP</p>
+                    <h4>FEE PAYMENT RECEIPT</h4>
+                </div>
+                <div class="receipt-section">
+                    <div class="receipt-row"><span>Receipt No.</span><span id="rReceiptNo">#RCP-2024-001</span></div>
+                    <div class="receipt-row"><span>Date</span><span id="rDate">—</span></div>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
+                    <div class="receipt-row"><span>Student Name</span><span>Amit Kumar</span></div>
+                    <div class="receipt-row"><span>Admission No.</span><span>#STU8012</span></div>
+                    <div class="receipt-row"><span>Course</span><span>B.Tech CSE</span></div>
+                    <div class="receipt-row"><span>Semester</span><span id="rSem">—</span></div>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
+                    <div class="receipt-row"><span>Fee Type</span><span>Tuition + Exam Fee</span></div>
+                    <div class="receipt-row receipt-bold"><span>Amount Paid</span><span id="rAmount">—</span></div>
+                    <div class="receipt-row"><span>Payment Mode</span><span id="rMode">Online</span></div>
+                    <div class="receipt-row"><span>Status</span><span class="receipt-status-paid">✓ PAID</span></div>
+                </div>
+                <div class="receipt-footer">
+                    <p>Thank you! Keep this receipt for your records.</p>
+                    <p>This is a computer-generated receipt — no signature required.</p>
+                </div>
+            </div>
+            <div class="modal-form-actions" style="margin-top:20px;">
+                <button class="btn btn-outline close-modal">Close</button>
+                <button class="btn btn-primary" id="printReceiptBtn">
+                    <i class="fa-solid fa-print"></i> Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MARKSHEET MODAL ===== -->
+<div class="modal-overlay" id="marksheetModal">
+    <div class="modal-box glass-card" style="max-width:520px;">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-file-alt"></i> Marksheet</h2>
+            <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="marksheet-box" id="marksheetContent">
+                <div class="marksheet-header">
+                    <div class="receipt-logo">
+                        <i class="fa-solid fa-graduation-cap"></i> EduSphere<span>.</span>
+                    </div>
+                    <p>EduSphere University, Lucknow</p>
+                    <h4>SEMESTER MARKSHEET</h4>
+                    <p id="msSubTitle">Semester 1 · Aug 2023</p>
+                </div>
+                <div class="ms-student-row">
+                    <div><span class="ms-label">Name:</span> Amit Kumar</div>
+                    <div><span class="ms-label">Roll No:</span> CSE/23/042</div>
+                    <div><span class="ms-label">Adm No:</span> #STU8012</div>
+                    <div><span class="ms-label">Course:</span> B.Tech CSE</div>
+                </div>
+                <table class="ms-table" id="msTable">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Code</th>
+                            <th>Credits</th>
+                            <th>Internal</th>
+                            <th>External</th>
+                            <th>Total</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="msTableBody"></tbody>
+                </table>
+                <div class="ms-footer-row">
+                    <div class="ms-footer-item">
+                        <span>Total Credits</span>
+                        <strong id="msTotalCredits">22</strong>
+                    </div>
+                    <div class="ms-footer-item">
+                        <span>SGPA</span>
+                        <strong id="msSGPA" class="text-success">8.2</strong>
+                    </div>
+                    <div class="ms-footer-item">
+                        <span>Result</span>
+                        <strong class="text-success">PASS</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-form-actions" style="margin-top:20px;">
+                <button class="btn btn-outline close-modal">Close</button>
+                <button class="btn btn-primary" id="printMarksheetBtn">
+                    <i class="fa-solid fa-print"></i> Print Marksheet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check toast-icon" id="toastIcon"></i>
+    <span id="toastMsg">Done!</span>
+</div>
+
+<script src="../static/js/student.js"></script>
 </body>
 </html>

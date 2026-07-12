@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from passlib.context import CryptContext
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
+from bson import ObjectId
 import os
 import uuid
 import shutil
@@ -250,24 +251,39 @@ def login(
 # ======================================================
 @app.get("/admin-dashboard")
 def admin_dashboard(req:Request):
+
     if "user_id" not in req.session:
         return RedirectResponse(url="/login",status_code=303)
     if req.session["role"]!="admin":
         return RedirectResponse(url="/student-dashboard",status_code=303)
-    return templates.TemplateResponse(request=req,name="admin_dashboard.html")
-
+    user=users_collections.find_one({"_id":ObjectId(req.session.get("user_id"))})
+    return templates.TemplateResponse(
+        request=req,
+        name="admin_dashboard.html",
+        context={
+            "request": req,
+            "user": user
+        }
+    )
 
 # ======================================================
 # Student Dashboard
 # ======================================================
 @app.get("/student-dashboard")
 def student_dashboard(req:Request):
+    user=users_collections.find_one({"_id":ObjectId(req.session.get("user_id"))})
     if "user_id" not in req.session:
         return RedirectResponse(url="/login",status_code=303)
     if req.session["role"]!="student":
         return RedirectResponse(url="/admin-dashboard",status_code=303)
-    return templates.TemplateResponse(request=req,name="student_dashboard.html")
-
+    return templates.TemplateResponse(
+        request=req,
+        name="student_dashboard.html",
+        context={
+            "request": req,
+            "user": user
+        }
+    )
 # ======================================================
 # Register Page
 # ======================================================
@@ -696,7 +712,77 @@ def change_password(
         url="/login",
         status_code=303
     )
-   
+
+@app.get("/change_admin_details")
+def change_admin_details(request: Request):
+
+    if "user_id" not in request.session:
+        return RedirectResponse("/login", status_code=303)
+
+    user_id = ObjectId(request.session["user_id"])
+
+    user = users_collections.find_one({"_id": user_id})
+
+    return templates.TemplateResponse(
+        "admin_dashboard.html",
+        {
+            "request": request,
+            "user": user
+        }
+    )
+@app.post("/change_admin_details")
+def change_admin_details(
+    request: Request,
+    fullname_new: str = Form(...),
+    email_new: str = Form(...),
+    mobile_new: str = Form(...)
+):
+
+    if "user_id" not in request.session:
+        return RedirectResponse("/login", status_code=303)
+
+    user_id = ObjectId(request.session["user_id"])
+
+    existing_user = users_collections.find_one(
+        {
+            "email": email_new,
+            "_id": {"$ne": user_id}
+        }
+    )
+
+    if existing_user:
+
+        user = users_collections.find_one({"_id": user_id})
+
+        return templates.TemplateResponse(
+            "admin_dashboard.html",
+            {
+                "request": request,
+                "user": user,
+                "message": "Email already exists."
+            }
+        )
+    print("Updating user_id:", user_id, "with:", fullname_new, email_new, mobile_new)
+    result = users_collections.update_one(
+        {"_id": user_id},
+        {"$set": {"full_name": fullname_new, "email": email_new, "mobile": mobile_new}}
+    )
+    print("Matched:", result.matched_count, "Modified:", result.modified_count)
+    users_collections.update_one(
+        {"_id": user_id},
+        {
+            "$set": {
+                "full_name": fullname_new,
+                "email": email_new,
+                "mobile": mobile_new
+            }
+        }
+    )
+
+    return RedirectResponse(
+        "/admin-dashboard",
+        status_code=303
+    )
 
 # # ======================================================
 # # Admin Dashboard
